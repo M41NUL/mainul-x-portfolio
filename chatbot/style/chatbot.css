@@ -52,8 +52,16 @@ GitHub: https://github.com/M41NUL
 }
 
 .bot-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     font-size: 12px;
-    opacity: 0.9;
+}
+
+.bot-status i {
+    font-size: 10px;
+    color: #10b981;
+    animation: pulse 2s infinite;
 }
 
 .header-right {
@@ -84,29 +92,93 @@ GitHub: https://github.com/M41NUL
     padding: 20px;
     overflow-y: auto;
     background: var(--darker);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
+/* ===== Message Container ===== */
 .message {
-    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideIn 0.3s forwards;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    margin-left: auto;
+}
+
+.message.bot {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-right: auto;
+}
+
+/* ===== Avatar Icons ===== */
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.bot .message-avatar {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.user .message-avatar {
+    background: var(--card-bg);
+    border: 2px solid var(--primary);
+    color: var(--light);
+}
+
+/* ===== Message Content Wrapper ===== */
+.message-wrapper {
+    max-width: 70%;
     display: flex;
     flex-direction: column;
 }
 
-.message.bot {
-    align-items: flex-start;
-}
-
-.message.user {
+.message.user .message-wrapper {
     align-items: flex-end;
 }
 
+.message.bot .message-wrapper {
+    align-items: flex-start;
+}
+
+/* ===== Message Bubble ===== */
 .message-content {
-    max-width: 80%;
     padding: 12px 15px;
-    border-radius: 15px;
+    border-radius: 18px;
     font-size: 13px;
     line-height: 1.5;
     word-wrap: break-word;
+    position: relative;
 }
 
 .bot .message-content {
@@ -121,11 +193,98 @@ GitHub: https://github.com/M41NUL
     border-bottom-right-radius: 5px;
 }
 
+/* ===== Message Footer ===== */
+.message-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    font-size: 10px;
+}
+
+.message.user .message-footer {
+    justify-content: flex-end;
+}
+
+/* ===== Message Time ===== */
 .message-time {
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.message-time i {
+    font-size: 8px;
+}
+
+/* ===== Read Receipt ===== */
+.read-receipt {
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.read-receipt i {
+    font-size: 10px;
+}
+
+/* ===== Message Reactions ===== */
+.message-reactions {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.reaction-btn {
+    background: var(--darker);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 3px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.reaction-btn:hover {
+    background: var(--gradient);
+    color: white;
+    transform: scale(1.1);
+}
+
+.reaction-count {
     font-size: 10px;
     color: var(--gray);
-    margin-top: 5px;
-    margin-left: 5px;
+}
+
+/* ===== Typing Indicator ===== */
+.typing-indicator {
+    display: flex;
+    gap: 5px;
+    padding: 12px 15px;
+    background: var(--card-bg);
+    border-radius: 15px;
+    width: fit-content;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
 }
 
 /* ===== Quick Questions ===== */
@@ -136,6 +295,7 @@ GitHub: https://github.com/M41NUL
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .quick-btn {
@@ -148,11 +308,23 @@ GitHub: https://github.com/M41NUL
     cursor: pointer;
     transition: 0.3s;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quick-btn i {
+    font-size: 14px;
+    color: var(--primary);
 }
 
 .quick-btn:hover {
     background: var(--gradient);
     border-color: transparent;
+}
+
+.quick-btn:hover i {
+    color: white;
 }
 
 /* ===== Input Area ===== */
@@ -245,9 +417,9 @@ GitHub: https://github.com/M41NUL
 
 /* ===== Speaker Button ===== */
 .speaker-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    color: var(--light);
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
     width: 35px;
     height: 35px;
     border-radius: 50%;
@@ -259,17 +431,10 @@ GitHub: https://github.com/M41NUL
 .speaker-btn.speaking {
     animation: pulse 1s infinite;
     background: var(--primary);
-    color: white;
 }
 
-.speaker-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.speaker-btn:hover:not(.disabled) {
-    background: var(--gradient);
-    color: white;
+.speaker-btn:hover {
+    background: rgba(255,255,255,0.3);
     transform: scale(1.1);
 }
 
@@ -303,40 +468,10 @@ GitHub: https://github.com/M41NUL
     border-radius: 5px;
 }
 
-/* ===== Typing Indicator ===== */
-.typing-indicator {
-    display: flex;
-    gap: 5px;
-    padding: 12px 15px;
-    background: var(--card-bg);
-    border-radius: 15px;
-    width: fit-content;
-}
-
-.typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background: var(--primary);
-    border-radius: 50%;
-    animation: typing 1s infinite;
-}
-
-.typing-indicator span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-indicator span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
+/* ===== Animations ===== */
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 /* ===== Code Block Styling ===== */
@@ -430,4 +565,8 @@ code {
         padding: 6px 10px;
         font-size: 11px;
     }
-  }
+    
+    .message-wrapper {
+        max-width: 85%;
+    }
+}
