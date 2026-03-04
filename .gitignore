@@ -1,4 +1,6 @@
 # Config files
 config.js
+chatbot-config.js
 .env
 secrets.json
+*.config.js
