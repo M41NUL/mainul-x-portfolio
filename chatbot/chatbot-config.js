@@ -5,29 +5,33 @@ GitHub: https://github.com/M41NUL
 */
 
 const CONFIG = {
-    // Google Gemini API
-    GEMINI_API_KEY: "AIzaSyDM7wn3AlgQqNrfKoBiYtXT7DSr2I-5Z3Y",
-    GEMINI_MODEL: "gemini-1.5-flash",
+    // Google Gemini API - GitHub Secrets থেকে আসবে
+    GEMINI_API_KEY: 'AIzaSyAIx87fQKgtqoINhpz50BUfEF8WuqQ0_t8',
     
     // GitHub
-    GITHUB_USERNAME: "M41NUL",
+    GITHUB_USERNAME: 'M41NUL',
     
     // Chatbot settings
     MAX_MEMORY: 10,
     TYPING_SPEED: 15,
-    VOICE_LANG: "bn-BD",
+    VOICE_LANG: 'bn-BD',
     
     // Contact info
-    WHATSAPP: "01308850528",
-    BKASH: "01308850528",
-    NAGAD: "01308850528",
-    BANK_ACCOUNT: "1073831440001",
+    WHATSAPP: '01308850528',
+    BKASH: '01308850528',
+    NAGAD: '01308850528',
+    BANK_ACCOUNT: '1073831440001',
     
     // Social links
-    GITHUB_URL: "https://github.com/m41nul",
-    FACEBOOK: "https://facebook.com/mainulxhy",
-    INSTAGRAM: "https://instagram.com/mainul_xhy",
-    TELEGRAM: "https://t.me/mdmainulislaminfo"
+    GITHUB_URL: 'https://github.com/m41nul',
+    FACEBOOK: 'https://facebook.com/mainulxhy',
+    INSTAGRAM: 'https://instagram.com/mainul_xhy',
+    TELEGRAM: 'https://t.me/mdmainulislaminfo'
 };
 
 console.log('✅ Config loaded');
+
+// For Node.js environment
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CONFIG;
+}
