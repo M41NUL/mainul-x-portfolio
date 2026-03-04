@@ -2,30 +2,3 @@
 config.js
 .env
 secrets.json
-local-config.js
-
-# Token files
-*token*
-*secret*
-*credential*
-
-# Environment files
-.env.local
-.env.development
-.env.production
-
-# IDE files
-.vscode/
-.idea/
-*.sublime-*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-
-# Dependencies
-node_modules/
