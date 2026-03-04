@@ -17,19 +17,19 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
     const message = body.message;
-    const type = body.type || "gemini";
 
     if (!message) {
       return res.status(400).json({ error: "Message required" });
     }
 
-    // GEMINI
-    if (type === "gemini") {
+    // ===== GEMINI TRY =====
 
-      const API_KEY = process.env.GEMINI_API_KEY;
+    try {
+
+      const GEMINI_KEY = process.env.GEMINI_API_KEY;
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -43,26 +43,48 @@ export default async function handler(req, res) {
 
       const data = await response.json();
 
-      return res.status(200).json(data);
+      if (data.candidates) {
+        return res.status(200).json(data);
+      }
+
+    } catch (err) {
+      console.log("Gemini failed → switching to Groq");
     }
 
-    // TELEGRAM
-    if (type === "telegram") {
+    // ===== GROQ FALLBACK =====
 
-      const token = process.env.TELEGRAM_TOKEN;
-      const chatId = process.env.TELEGRAM_CHAT_ID;
+    const GROQ_KEY = process.env.GROQ_API_KEY;
 
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const groqResponse = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + GROQ_KEY
+        },
         body: JSON.stringify({
-          chat_id: chatId,
-          text: message
+          model: "llama3-70b-8192",
+          messages: [
+            { role: "user", content: message }
+          ]
         })
-      });
+      }
+    );
 
-      return res.status(200).json({ ok: true });
-    }
+    const groqData = await groqResponse.json();
+
+    return res.status(200).json({
+      candidates: [
+        {
+          content: {
+            parts: [
+              { text: groqData.choices[0].message.content }
+            ]
+          }
+        }
+      ]
+    });
 
   } catch (error) {
 
@@ -71,5 +93,6 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: error.message
     });
+
   }
 }
