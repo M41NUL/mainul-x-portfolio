@@ -1,0 +1,238 @@
+/*
+MAINUL-X Portfolio - Posts Styles
+Author: Md. Mainul Islam
+*/
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--light);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    border-color: #0088cc;
+}
+
+.post-media {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: var(--darker);
+}
+
+.post-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.post-card:hover .post-media img {
+    transform: scale(1.05);
+}
+
+.post-media.file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    height: 120px;
+}
+
+.post-media.file i {
+    font-size: 40px;
+    color: white;
+}
+
+.post-media.file span {
+    color: white;
+    font-weight: 600;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px 5px;
+}
+
+.post-header i {
+    color: #0088cc;
+    font-size: 20px;
+}
+
+.post-date {
+    color: var(--gray);
+    font-size: 12px;
+}
+
+.post-title {
+    color: var(--light);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 5px 20px 10px;
+    line-height: 1.4;
+}
+
+.post-content {
+    color: var(--gray);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 20px 15px;
+    flex: 1;
+}
+
+.post-badges {
+    display: flex;
+    gap: 10px;
+    margin: 0 20px 15px;
+    flex-wrap: wrap;
+}
+
+.media-badge {
+    background: rgba(0, 136, 204, 0.2);
+    color: #0088cc;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.github-badge {
+    background: #333;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.github-badge i {
+    font-size: 12px;
+}
+
+.post-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.read-more {
+    color: #0088cc;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: gap 0.3s ease;
+}
+
+.post-card:hover .read-more {
+    gap: 10px;
+}
+
+.join-channel {
+    text-align: center;
+    padding: 50px 30px;
+    background: var(--card-bg);
+    border: 2px dashed var(--border);
+    border-radius: 15px;
+    grid-column: 1 / -1;
+}
+
+.join-channel i {
+    font-size: 60px;
+    color: #0088cc;
+    margin-bottom: 20px;
+}
+
+.join-channel h3 {
+    color: var(--light);
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.join-channel p {
+    color: var(--gray);
+    margin-bottom: 25px;
+}
+
+.telegram-join-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #0088cc;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.telegram-join-btn:hover {
+    background: #0077b5;
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 136, 204, 0.3);
+}
+
+.posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.posts-header h2 {
+    color: var(--light);
+    font-size: 24px;
+}
+
+.posts-header h2 i {
+    color: #0088cc;
+    margin-right: 10px;
+}
+
+.update-time {
+    color: var(--gray);
+    font-size: 14px;
+    background: var(--card-bg);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+    .posts-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .post-media {
+        height: 180px;
+    }
+    
+    .posts-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
