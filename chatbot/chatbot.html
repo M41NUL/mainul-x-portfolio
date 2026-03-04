@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAINUL-X Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="chatbot.css">
+</head>
+<body>
+    <!-- Chat toggle button -->
+    <div class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- Chat container -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <!-- Header section -->
+        <div class="chatbot-header">
+            <div class="header-left">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h3>MAINUL-X Helper</h3>
+                    <p class="bot-status">🟢 Online</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="minimize-btn" id="minimizeChat">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="close-btn" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages area -->
+        <div class="chatbot-messages" id="chatMessages"></div>
+
+        <!-- Quick buttons area -->
+        <div class="quick-questions" id="quickQuestions"></div>
+
+        <!-- Input area -->
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Type message..." autocomplete="off">
+            <button id="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JS files -->
+    <script src="chatbot-data.js"></script>
+    <script src="chatbot-config.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
