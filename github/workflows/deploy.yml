@@ -1,4 +1,5 @@
 name: Generate Config
+
 on:
   push:
     branches: [ main ]
@@ -6,13 +7,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Create config.js from secrets
+      - uses: actions/checkout@v3
+
+      - name: Create config.js from secret
         run: |
-          echo "const CONFIG = {" > config.js
+          echo "/*" > config.js
+          echo "MAINUL-X Portfolio - Auto-generated Config" >> config.js
+          echo "Author: Md. Mainul Islam" >> config.js
+          echo "*/" >> config.js
+          echo "" >> config.js
+          echo "const CONFIG = {" >> config.js
           echo "  BOT_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'," >> config.js
+          echo "  GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'," >> config.js
           echo "  CHANNEL_ID: '@mainulx_updates'," >> config.js
           echo "  CHAT_ID: '8279574441'" >> config.js
           echo "};" >> config.js
@@ -20,9 +30,11 @@ jobs:
           echo "if (typeof module !== 'undefined' && module.exports) {" >> config.js
           echo "  module.exports = CONFIG;" >> config.js
           echo "}" >> config.js
-          
-      - name: Upload config.js
-        uses: actions/upload-artifact@v3
-        with:
-          name: config
-          path: config.js
+
+      - name: Commit and push config.js
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add config.js
+          git commit -m "Auto-update config.js [skip ci]" || exit 0
+          git push
