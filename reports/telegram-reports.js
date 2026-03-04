@@ -1,22 +1,15 @@
 /*
-============================================
-MAINUL-X Portfolio - Telegram Reports System
-============================================
-Author  : Md. Mainul Islam (MAINUL-X)
-GitHub  : https://github.com/M41NUL
-Telegram: @mdmainulislaminfo
-WhatsApp: +8801308850528
-Email   : githubmainul@gmail.com
-============================================
-This file handles report submissions and
-sends them directly to Telegram bot.
-Created : March 2026
-Version : 1.0
-============================================
+MAINUL-X Portfolio - Telegram Reports
+Author: Md. Mainul Islam
 */
 
-const BOT_TOKEN = '8213501580:AAEg5hiXlVkeaHarTgVNWTKBytJnOP6hNEw';
-const YOUR_CHAT_ID = '8279574441';
+const CONFIG = typeof CONFIG !== 'undefined' ? CONFIG : {
+    BOT_TOKEN: 'YOUR_TOKEN_HERE',
+    CHAT_ID: '8279574441'
+};
+
+const BOT_TOKEN = CONFIG.BOT_TOKEN;
+const YOUR_CHAT_ID = CONFIG.CHAT_ID;
 
 async function sendReportWithFile(name, email, message, file) {
     try {
@@ -64,14 +57,19 @@ async function sendReportWithFile(name, email, message, file) {
     }
 }
 
-document.getElementById('reportForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    
-    sendReportWithFile(name, email, message, file);
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('reportForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            sendReportWithFile(name, email, message, file);
+        });
+    }
 });
