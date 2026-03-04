@@ -3,6 +3,7 @@
 
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 
+
 // ===== MAIN CHATBOT FUNCTION =====
 async function processMessage(message) {
 
@@ -62,11 +63,85 @@ async function askGemini(message) {
   } catch (error) {
 
     console.error(error);
-
     return "😔 AI connection error.";
 
   }
 }
+
+
+// ===== UI FUNCTIONS =====
+function addMessage(text, sender = "bot") {
+
+  const chatMessages = document.getElementById("chatMessages");
+
+  const msg = document.createElement("div");
+  msg.className = sender === "user" ? "user-message" : "bot-message";
+
+  msg.innerText = text;
+
+  chatMessages.appendChild(msg);
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+// ===== SEND MESSAGE =====
+async function sendMessage() {
+
+  const input = document.getElementById("userInput");
+
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  addMessage(message, "user");
+
+  input.value = "";
+
+  const reply = await processMessage(message);
+
+  addMessage(reply, "bot");
+}
+
+
+// ===== CHAT UI CONTROL =====
+document.addEventListener("DOMContentLoaded", () => {
+
+  const toggle = document.getElementById("chatbotToggle");
+  const chatbox = document.getElementById("chatbotContainer");
+  const closeBtn = document.getElementById("closeChat");
+  const sendBtn = document.getElementById("sendMessage");
+  const input = document.getElementById("userInput");
+
+  // Bubble click → open chat
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      chatbox.classList.toggle("active");
+    });
+  }
+
+  // Close chat
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      chatbox.classList.remove("active");
+    });
+  }
+
+  // Send button
+  if (sendBtn) {
+    sendBtn.addEventListener("click", sendMessage);
+  }
+
+  // Enter key send
+  if (input) {
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  }
+
+});
 
 
 // ===== Export for UI =====
