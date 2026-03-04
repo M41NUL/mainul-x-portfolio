@@ -36,7 +36,7 @@ const contacts = [
     { icon: 'fab fa-github', name: 'GitHub', value: '@M41NUL', url: 'https://github.com/m41nul', color: 'github' },
     { icon: 'fab fa-facebook-f', name: 'Facebook', value: 'MAINUL ISLAM', url: 'https://facebook.com/mainulxhy', color: 'facebook' },
     { icon: 'fab fa-facebook', name: 'FB Page', value: 'SOCINEST - X', url: 'https://facebook.com/socinestx', color: 'facebook' },
-    { icon: 'fab fa-facebook-messenger', name: 'Messenger', value: 'MD. MAINUL ISLAM', url: 'https://m.me/mdmainulislaminfo', color: 'messenger' },
+    { icon: 'fab fa-facebook-messenger', name: 'Messenger', value: 'MD. MAINUL ISLAM', url: 'https://m.me/mainulxhy', color: 'messenger' },
     { icon: 'fab fa-instagram', name: 'Instagram', value: 'MAINUL ISLAM', url: 'https://instagram.com/mainul_xhy', color: 'instagram' },
     { icon: 'fab fa-instagram', name: 'IG Business', value: 'SOCINEST - X', url: 'https://instagram.com/socinestx', color: 'instagram' },
     { icon: 'fab fa-telegram', name: 'Telegram', value: 'MD. MAINUL ISLAM', url: 'https://t.me/mdmainulislaminfo', color: 'telegram' },
