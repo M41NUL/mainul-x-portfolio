@@ -97,13 +97,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (toggle) {
     toggle.addEventListener("click", () => {
-      chatbox.classList.toggle("active");
+      chatbox.classList.toggle("open");
     });
   }
 
   if (closeBtn) {
     closeBtn.addEventListener("click", () => {
-      chatbox.classList.remove("active");
+      chatbox.classList.remove("open");
     });
   }
 
@@ -118,5 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ===== Export for UI =====
 window.processMessage = processMessage;
+window.sendMessage = sendMessage;
+
 console.log("✅ MAINUL-X chatbot loaded");
