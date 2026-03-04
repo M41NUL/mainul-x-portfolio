@@ -1,4 +1,42 @@
+// MAINUL-X Chatbot
+// Author: Md. Mainul Islam
+
+const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
+
+// ===== MAIN CHATBOT FUNCTION =====
+async function processMessage(message) {
+
+  if (!message || message.trim() === "") {
+    return "Please type a message.";
+  }
+
+  const text = message.toLowerCase();
+
+  // Quick replies
+  if (text.includes("hi") || text.includes("hello")) {
+    return "👋 Hello! How can I help you today?";
+  }
+
+  if (text.includes("payment")) {
+    return "💰 Payment: bKash / Nagad 01308850528";
+  }
+
+  if (text.includes("github")) {
+    return "🐙 GitHub: https://github.com/M41NUL";
+  }
+
+  if (text.includes("contact")) {
+    return "📞 WhatsApp: 01308850528";
+  }
+
+  // Default → AI
+  return await askGemini(message);
+}
+
+
+// ===== AI REQUEST =====
 async function askGemini(message) {
+
   try {
 
     const response = await fetch(API_URL, {
@@ -29,3 +67,9 @@ async function askGemini(message) {
 
   }
 }
+
+
+// ===== Export for UI =====
+window.processMessage = processMessage;
+
+console.log("✅ MAINUL-X chatbot loaded");
