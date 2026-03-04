@@ -1,37 +1,101 @@
 export default async function handler(req, res) {
-  const { message } = req.body;
-  
-  // ১. প্রথমে Gemini AI চেষ্টা করবে
-  try {
-    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: message }] }] })
-    });
-    const geminiData = await geminiRes.json();
-    if (geminiData.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return res.status(200).json({ reply: geminiData.candidates[0].content.parts[0].text });
-    }
-  } catch (err) { console.log("Gemini failed, switching to Groq..."); }
 
-  // ২. Gemini ফেইল করলে Groq AI চেষ্টা করবে
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
+
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const message = body.message;
+
+    const GEMINI = process.env.GEMINI_API_KEY;
+    const GROQ = process.env.GROQ_API_KEY;
+
+    // ===== GEMINI TRY =====
+
+    try {
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text:`Reply in the same language as the user.\nUser: ${message}`
+              }]
+            }]
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if(data.candidates){
+        return res.status(200).json(data);
+      }
+
+    } catch(err){
+      console.log("Gemini failed, switching to Groq");
+    }
+
+    // ===== GROQ FALLBACK =====
+
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${GROQ}`
       },
-      body: JSON.stringify({
-        model: "mixtral-8x7b-32768",
-        messages: [{ role: "user", content: message }]
-      })
-    });
-    const groqData = await groqRes.json();
-    if (groqData.choices?.[0]?.message?.content) {
-      return res.status(200).json({ reply: groqData.choices[0].message.content });
-    }
-  } catch (err) { console.log("Both APIs failed."); }
 
-  res.status(500).json({ error: "Both AI services are down." });
+      body: JSON.stringify({
+
+        model:"llama3-70b-8192",
+
+        messages:[
+          {
+            role:"user",
+            content:message
+          }
+        ]
+
+      })
+
+    });
+
+    const groqData = await groqRes.json();
+
+    return res.status(200).json({
+
+      candidates:[
+        {
+          content:{
+            parts:[
+              {
+                text: groqData.choices[0].message.content
+              }
+            ]
+          }
+        }
+      ]
+
+    });
+
+  } catch(error){
+
+    console.error(error);
+
+    return res.status(500).json({
+      error:error.message
+    });
+
+  }
+
 }
