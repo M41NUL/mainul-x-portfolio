@@ -1,197 +1,289 @@
-// Main chatbot logic
+// chatbot/chatbot.js - Main chatbot file
+// Author: Md. Mainul Islam
+// GitHub: https://github.com/M41NUL
 
-// DOM elements
-const chatbotToggle = document.getElementById('chatbotToggle');
-const chatbotContainer = document.getElementById('chatbotContainer');
-const minimizeBtn = document.getElementById('minimizeChat');
-const closeBtn = document.getElementById('closeChat');
-const chatMessages = document.getElementById('chatMessages');
-const userInput = document.getElementById('userInput');
-const sendButton = document.getElementById('sendMessage');
-const quickQuestions = document.getElementById('quickQuestions');
+// Vercel API URL (GitHub Pages থেকে কল করবে)
+const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 
-// State variables
-let isOpen = false;
-let currentLanguage = null; // 'bn' or 'en'
-let messageHistory = [];
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    showLanguageSelection();
+// Initialize chatbot
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🤖 Chatbot initialized');
+  
+  // Check if we're in a browser environment
+  if (typeof window !== 'undefined') {
+    // Make functions globally available
+    window.processMessage = processMessage;
+    window.sendTelegramNotification = sendTelegramNotification;
+    window.askGemini = askGemini;
+  }
 });
 
-// Toggle button click
-chatbotToggle.addEventListener('click', () => {
-    if (!isOpen) {
-        chatbotContainer.classList.add('open');
-        isOpen = true;
-    } else {
-        chatbotContainer.classList.remove('open');
-        isOpen = false;
-    }
-});
-
-// Minimize button
-minimizeBtn.addEventListener('click', () => {
-    chatbotContainer.classList.remove('open');
-    isOpen = false;
-});
-
-// Close button
-closeBtn.addEventListener('click', () => {
-    chatbotContainer.classList.remove('open');
-    isOpen = false;
-});
-
-// Send message
-sendButton.addEventListener('click', sendUserMessage);
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendUserMessage();
-});
-
-// Show language selection
-function showLanguageSelection() {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message bot';
-    messageDiv.innerHTML = `
-        <div class="message-content">
-            ${chatbotData.languagePrompt.en}<br><br>
-            ${chatbotData.languagePrompt.bn}
-        </div>
-    `;
-    chatMessages.appendChild(messageDiv);
-    
-    // Language buttons
-    const buttonDiv = document.createElement('div');
-    buttonDiv.className = 'quick-questions';
-    buttonDiv.innerHTML = `
-        <button class="quick-btn" onclick="setLanguage('bn')">বাংলা</button>
-        <button class="quick-btn" onclick="setLanguage('en')">English</button>
-    `;
-    chatMessages.appendChild(buttonDiv);
+// Main function to process user messages
+async function processMessage(message) {
+  if (!message || message.trim() === '') {
+    return "Please type a message.";
+  }
+  
+  const trimmedMessage = message.trim();
+  const lowerMsg = trimmedMessage.toLowerCase();
+  
+  // Quick replies (no API call needed)
+  if (lowerMsg.includes('payment') || lowerMsg.includes('পেমেন্ট') || 
+      lowerMsg.includes('টাকা') || lowerMsg.includes('bkash')) {
+    return paymentReply();
+  }
+  
+  if (lowerMsg.includes('contact') || lowerMsg.includes('যোগাযোগ') || 
+      lowerMsg.includes('ফোন') || lowerMsg.includes('whatsapp')) {
+    return contactReply();
+  }
+  
+  if (lowerMsg.includes('github') || lowerMsg.includes('গিটহাব') || 
+      lowerMsg.includes('project') || lowerMsg.includes('প্রজেক্ট')) {
+    return githubReply();
+  }
+  
+  if (lowerMsg.includes('service') || lowerMsg.includes('সার্ভিস') || 
+      lowerMsg.includes('what do you do') || lowerMsg.includes('কি কি')) {
+    return servicesReply();
+  }
+  
+  if (lowerMsg.includes('about') || lowerMsg.includes('সম্পর্কে') || 
+      lowerMsg.includes('who are you') || lowerMsg.includes('তুমি কে')) {
+    return aboutReply();
+  }
+  
+  if (lowerMsg.includes('termux') || lowerMsg.includes('টার্মাক্স') || 
+      lowerMsg.includes('tool') || lowerMsg.includes('টুল')) {
+    return termuxReply();
+  }
+  
+  if (lowerMsg.includes('socinest') || lowerMsg.includes('সোসিনেস্ট') || 
+      lowerMsg.includes('agency') || lowerMsg.includes('এজেন্সি')) {
+    return socinestReply();
+  }
+  
+  if (lowerMsg.includes('hi') || lowerMsg.includes('hello') || 
+      lowerMsg.includes('হাই') || lowerMsg.includes('ওহে')) {
+    return "👋 Hello! How can I help you today?";
+  }
+  
+  // Default to Gemini AI
+  return await askGemini(trimmedMessage);
 }
 
-// Set language
-function setLanguage(lang) {
-    currentLanguage = lang;
+// Ask Gemini AI via Vercel API
+async function askGemini(message) {
+  try {
+    console.log('🤖 Asking Gemini:', message);
     
-    // Remove language selection
-    const messages = chatMessages.children;
-    for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].classList.contains('quick-questions') || 
-            messages[i].querySelector('.message-content')?.innerText.includes('Which language')) {
-            messages[i].remove();
-        }
-    }
-    
-    // Show welcome message
-    const langData = lang === 'bn' ? chatbotData.bn : chatbotData.en;
-    addMessage(langData.welcome, 'bot');
-    loadQuickButtons(lang);
-}
-
-// Send user message
-function sendUserMessage() {
-    const message = userInput.value.trim();
-    if (message === '' || !currentLanguage) return;
-    
-    addMessage(message, 'user');
-    userInput.value = '';
-    
-    // Show typing indicator
-    if (chatbotConfig.showTypingIndicator) {
-        showTypingIndicator();
-    }
-    
-    // Get reply
-    setTimeout(() => {
-        removeTypingIndicator();
-        const reply = getBotReply(message);
-        addMessage(reply, 'bot');
-    }, 1000);
-}
-
-// Add message to chat
-function addMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    
-    const time = new Date().toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        message: message,
+        type: 'gemini'
+      })
     });
-    
-    messageDiv.innerHTML = `
-        <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
-        ${chatbotConfig.showTime ? `<div class="message-time">${time}</div>` : ''}
-    `;
-    
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
 
-// Get bot reply
-function getBotReply(userMessage) {
-    if (!currentLanguage) return "Please select a language first.";
-    
-    const message = userMessage.toLowerCase();
-    const langData = currentLanguage === 'bn' ? chatbotData.bn : chatbotData.en;
-    
-    // Check keywords
-    for (let response of langData.responses) {
-        for (let keyword of response.keywords) {
-            if (message.includes(keyword.toLowerCase())) {
-                return response.answer;
-            }
-        }
+    const data = await response.json();
+    console.log('✅ Gemini response received');
+
+    if (data.candidates && data.candidates.length > 0) {
+      return data.candidates[0].content.parts[0].text;
     }
-    
-    // Check greetings
-    if (message.match(/(hi|hello|হাই|ওহে)/)) {
-        return langData.greetings[Math.floor(Math.random() * langData.greetings.length)];
+
+    if (data.error) {
+      console.error('API Error:', data.error);
+      return "😔 Sorry, I'm having trouble connecting. Please try again.";
     }
-    
-    // Fallback
-    return langData.fallback;
+
+    return "⚠️ No response from AI.";
+
+  } catch (error) {
+    console.error('Error calling Gemini:', error);
+    return "😔 Network error. Please check your connection.";
+  }
 }
 
-// Show typing indicator
-function showTypingIndicator() {
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'message bot';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = `
-        <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    `;
-    chatMessages.appendChild(typingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Remove typing indicator
-function removeTypingIndicator() {
-    const indicator = document.getElementById('typingIndicator');
-    if (indicator) indicator.remove();
-}
-
-// Load quick buttons
-function loadQuickButtons(lang) {
-    if (!chatbotConfig.showQuickButtons) return;
+// Send Telegram notification
+async function sendTelegramNotification(text) {
+  try {
+    console.log('📤 Sending Telegram notification');
     
-    quickQuestions.innerHTML = '';
-    const buttons = chatbotData.quickButtons.filter(btn => btn.lang === lang);
-    
-    buttons.forEach(btn => {
-        const button = document.createElement('button');
-        button.className = 'quick-btn';
-        button.textContent = btn.text;
-        button.onclick = () => {
-            userInput.value = btn.query;
-            sendUserMessage();
-        };
-        quickQuestions.appendChild(button);
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        message: text,
+        type: 'telegram'
+      })
     });
+
+    const data = await response.json();
+    console.log('✅ Telegram response:', data);
+    
+    return data;
+
+  } catch (error) {
+    console.error('Telegram Error:', error);
+    return { ok: false, error: error.message };
+  }
 }
+
+// Quick reply functions
+function paymentReply() {
+  return `💰 **Payment Options**
+  
+📱 **Nagad:** 01308850528
+📱 **bKash:** 01308850528
+🏦 **BRAC Bank:** 1073831440001
+👤 **Holder:** MD. MAINUL ISLAM
+
+Click any number to copy!`;
+}
+
+function contactReply() {
+  return `📞 **Contact Information**
+  
+📧 **Email:** githubmainul@gmail.com
+📱 **WhatsApp:** 01308850528
+✈️ **Telegram:** @mdmainulislaminfo
+👤 **Facebook:** /mainulxhy
+📸 **Instagram:** @mainul_xhy
+🐙 **GitHub:** @M41NUL
+
+I usually reply within a few hours!`;
+}
+
+function githubReply() {
+  return `📦 **GitHub Projects (50+)**
+  
+🔗 https://github.com/M41NUL
+
+**Popular repos:**
+• system-monitor
+• port-scanner
+• speedtest-tool
+• termux-theme-changer
+• M41NUL-Bot
+
+All projects are open source!`;
+}
+
+function servicesReply() {
+  return `📋 **My Services**
+  
+🔹 **Digital Marketing**
+   • Social media management
+   • Growth hacking
+   • Content strategy
+
+🔹 **Cyber Security**
+   • Penetration testing
+   • Security auditing
+   • Ethical hacking
+
+🔹 **Programming**
+   • Custom software
+   • Automation scripts
+   • Web development
+
+🔹 **Termux Tools**
+   • Custom scripts
+   • Hacking tools
+   • Automation solutions
+
+🔹 **App Subscriptions**
+   • Subscription management
+   • Boosting services
+
+🔹 **SOCINEST-X Agency**
+   • Complete social media management
+   • Brand promotion
+
+Need details about any service? Just ask!`;
+}
+
+function aboutReply() {
+  return `👤 **Md. Mainul Islam (MAINUL-X)**
+
+🔐 **Cyber Security Specialist**
+📈 **Digital Marketing Expert**
+🧰 **Termux Tools Developer**
+📦 **50+ GitHub Projects** (Open Source)
+🚀 **Founder of SOCINEST-X**
+
+🎯 **Expertise:**
+• Cyber Security: 95%
+• Digital Marketing: 90%
+• Programming: 88%
+• Termux Tools: 85%
+• Social Media: 92%
+
+📝 **Bio:**
+I work professionally in Cyber Security and Digital Marketing. I create tools, websites, and applications for Termux. All my GitHub projects are open source.
+
+My journey started with Termux Tools Development. Now I work on security, automation, and digital growth.
+
+I run SOCINEST-X, a social media agency helping businesses grow online.`;
+}
+
+function termuxReply() {
+  return `🧰 **Termux Tools**
+  
+আমি Termux-এর জন্য বিভিন্ন টুলস বানাই:
+
+🔹 **system-monitor** - System monitoring
+🔹 **port-scanner** - Network scanner
+🔹 **speedtest-tool** - Internet speed test
+🔹 **termux-theme-changer** - Theme changer
+🔹 **bd-sms-blitz** - SMS tool
+🔹 **M41NUL-Bot** - Telegram bot
+
+এবং আরও ৪৫+ টুলস!
+
+👉 সবগুলো ওপেন সোর্স এবং ফ্রি
+👉 GitHub-এ পাবেন: https://github.com/M41NUL
+
+কোন টুল সম্পর্কে জানতে চান?`;
+}
+
+function socinestReply() {
+  return `📱 **SOCINEST-X Agency**
+  
+🚀 Social media agency founded by Md. Mainul Islam
+
+**Services:**
+• Online promotion
+• Content management
+• Social media strategy
+• Brand growth
+• Business page management
+
+**Contact:**
+👤 Facebook: /socinestx
+📸 Instagram: @socinestx
+
+We help businesses grow their online presence!`;
+}
+
+// Export functions for browser
+if (typeof window !== 'undefined') {
+  window.processMessage = processMessage;
+  window.sendTelegramNotification = sendTelegramNotification;
+  window.askGemini = askGemini;
+  window.paymentReply = paymentReply;
+  window.contactReply = contactReply;
+  window.githubReply = githubReply;
+  window.servicesReply = servicesReply;
+  window.aboutReply = aboutReply;
+  window.termuxReply = termuxReply;
+  window.socinestReply = socinestReply;
+}
+
+console.log('✅ chatbot.js loaded');
