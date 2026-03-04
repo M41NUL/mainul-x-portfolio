@@ -1,5 +1,15 @@
-const BOT_TOKEN = '8213501580:AAEg5hiXlVkeaHarTgVNWTKBytJnOP6hNEw';
-const CHANNEL_USERNAME = '@mainulx_updates';
+/*
+MAINUL-X Portfolio - Telegram Posts
+Author: Md. Mainul Islam
+*/
+
+const CONFIG = typeof CONFIG !== 'undefined' ? CONFIG : {
+    BOT_TOKEN: 'YOUR_TOKEN_HERE',
+    CHANNEL_ID: '@mainulx_updates'
+};
+
+const BOT_TOKEN = CONFIG.BOT_TOKEN;
+const CHANNEL_USERNAME = CONFIG.CHANNEL_ID;
 
 async function loadTelegramPosts() {
     try {
@@ -10,10 +20,10 @@ async function loadTelegramPosts() {
         if (!container) return;
         
         container.innerHTML = `
-            <h2 class="section-title" style="margin-bottom: 30px; color: var(--light);">
-                <i class="fab fa-telegram" style="color: #0088cc; margin-right: 10px;"></i>
-                Telegram Updates
-            </h2>
+            <div class="posts-header">
+                <h2><i class="fab fa-telegram"></i> Latest Updates</h2>
+                <span class="update-time">🔄 ${new Date().toLocaleTimeString()}</span>
+            </div>
             <div class="posts-grid"></div>
         `;
         
@@ -23,117 +33,109 @@ async function loadTelegramPosts() {
         
         for (let msg of messages) {
             if (msg.channel_post && msg.channel_post.chat.username === CHANNEL_USERNAME.replace('@', '')) {
-                posts.push({
+                const post = {
                     text: msg.channel_post.text || msg.channel_post.caption || '',
                     date: new Date(msg.channel_post.date * 1000),
                     message_id: msg.channel_post.message_id,
                     hasPhoto: !!msg.channel_post.photo,
                     hasDocument: !!msg.channel_post.document
-                });
+                };
+                
+                if (post.hasPhoto && msg.channel_post.photo) {
+                    const photos = msg.channel_post.photo;
+                    post.photoFileId = photos[photos.length - 1].file_id;
+                }
+                
+                posts.push(post);
             }
-        }
-        
-        if (posts.length === 0) {
-            showJoinButton(container);
-            return;
         }
         
         const recentPosts = posts.slice(-6).reverse();
         
+        if (recentPosts.length === 0) {
+            showJoinButton();
+            return;
+        }
+        
         for (let post of recentPosts) {
-            const lines = post.text.split('\n');
-            const title = lines[0].replace('📢', '').trim() || 'New Update';
-            const content = lines.slice(1).join('\n').substring(0, 120);
-            const postUrl = `https://t.me/${CHANNEL_USERNAME.replace('@', '')}/${post.message_id}`;
-            
-            const postCard = document.createElement('a');
-            postCard.href = postUrl;
-            postCard.target = '_blank';
-            postCard.className = 'post-card';
-            postCard.style.cssText = `
-                background: var(--card-bg);
-                border: 1px solid var(--border);
-                border-radius: 15px;
-                padding: 20px;
-                text-decoration: none;
-                color: var(--light);
-                transition: all 0.3s ease;
-                display: block;
-                height: 100%;
-            `;
-            
-            let mediaIcon = '';
-            if (post.hasPhoto) {
-                mediaIcon = '<span style="color: var(--primary); margin-left: 8px;">📷</span>';
-            } else if (post.hasDocument) {
-                mediaIcon = '<span style="color: var(--secondary); margin-left: 8px;">📎</span>';
-            }
-            
-            postCard.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                    <i class="fab fa-telegram" style="color: #0088cc; font-size: 20px;"></i>
-                    <span style="color: var(--gray); font-size: 12px;">${post.date.toLocaleDateString()}</span>
-                </div>
-                <h3 style="color: var(--light); font-size: 18px; margin-bottom: 10px; display: flex; align-items: center;">
-                    ${title} ${mediaIcon}
-                </h3>
-                <p style="color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
-                    ${content}...
-                </p>
-                <div style="color: var(--primary); font-size: 13px; display: flex; align-items: center; gap: 5px;">
-                    Read more <i class="fas fa-arrow-right" style="font-size: 12px;"></i>
-                </div>
-            `;
-            
-            postCard.onmouseover = () => {
-                postCard.style.transform = 'translateY(-5px)';
-                postCard.style.borderColor = 'var(--primary)';
-                postCard.style.boxShadow = 'var(--shadow)';
-            };
-            
-            postCard.onmouseout = () => {
-                postCard.style.transform = 'translateY(0)';
-                postCard.style.borderColor = 'var(--border)';
-                postCard.style.boxShadow = 'none';
-            };
-            
-            postsGrid.appendChild(postCard);
+            await displayPost(post, postsGrid);
         }
         
     } catch (error) {
         console.error('Error:', error);
-        showJoinButton(document.getElementById('postsContainer'));
+        showJoinButton();
     }
 }
 
-function showJoinButton(container) {
+async function displayPost(post, container) {
+    const lines = post.text.split('\n');
+    const title = lines[0].replace('📢', '').trim() || 'New Update';
+    const content = lines.slice(1).join('\n').substring(0, 150);
+    const postUrl = `https://t.me/${CHANNEL_USERNAME.replace('@', '')}/${post.message_id}`;
+    
+    const postCard = document.createElement('a');
+    postCard.href = postUrl;
+    postCard.target = '_blank';
+    postCard.className = 'post-card';
+    
+    let mediaHtml = '';
+    let mediaType = '';
+    
+    if (post.hasPhoto && post.photoFileId) {
+        try {
+            const fileResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${post.photoFileId}`);
+            const fileData = await fileResponse.json();
+            
+            if (fileData.ok) {
+                const photoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+                mediaHtml = `<div class="post-media"><img src="${photoUrl}" alt="Post image" loading="lazy"></div>`;
+                mediaType = '📷 Photo';
+            }
+        } catch (error) {
+            console.log('Photo load error:', error);
+        }
+    }
+    
+    if (post.hasDocument) {
+        mediaHtml = '<div class="post-media file"><i class="fas fa-file"></i> <span>Attached File</span></div>';
+        mediaType = '📎 File';
+    }
+    
+    const hasGitHub = post.text.includes('github.com');
+    
+    postCard.innerHTML = `
+        ${mediaHtml}
+        <div class="post-header">
+            <i class="fab fa-telegram"></i>
+            <span class="post-date">${post.date.toLocaleDateString()}</span>
+        </div>
+        <h3 class="post-title">${title}</h3>
+        <p class="post-content">${content}...</p>
+        <div class="post-badges">
+            ${mediaType ? `<span class="media-badge">${mediaType}</span>` : ''}
+            ${hasGitHub ? '<span class="github-badge"><i class="fab fa-github"></i> GitHub</span>' : ''}
+        </div>
+        <div class="post-footer">
+            <span class="read-more">Read more <i class="fas fa-arrow-right"></i></span>
+        </div>
+    `;
+    
+    container.appendChild(postCard);
+}
+
+function showJoinButton() {
+    const container = document.getElementById('postsContainer');
     if (!container) return;
     
     container.innerHTML = `
-        <h2 class="section-title" style="margin-bottom: 30px; color: var(--light);">
-            <i class="fab fa-telegram" style="color: #0088cc; margin-right: 10px;"></i>
-            Telegram Updates
-        </h2>
-        <div style="
-            background: var(--card-bg);
-            border: 2px dashed var(--border);
-            border-radius: 20px;
-            padding: 50px 30px;
-            text-align: center;
-        ">
-            <i class="fab fa-telegram" style="font-size: 60px; color: #0088cc; margin-bottom: 20px;"></i>
-            <h3 style="color: var(--light); font-size: 24px; margin-bottom: 10px;">Join Our Telegram Channel</h3>
-            <p style="color: var(--gray); margin-bottom: 30px;">Get latest updates directly on Telegram</p>
-            <a href="https://t.me/${CHANNEL_USERNAME.replace('@', '')}" target="_blank" style="
-                display: inline-block;
-                padding: 14px 35px;
-                background: linear-gradient(135deg, var(--primary), var(--secondary));
-                color: white;
-                text-decoration: none;
-                border-radius: 50px;
-                font-weight: 600;
-                transition: 0.3s;
-            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <div class="posts-header">
+            <h2><i class="fab fa-telegram"></i> Latest Updates</h2>
+        </div>
+        <div class="join-channel">
+            <i class="fab fa-telegram"></i>
+            <h3>Join our Telegram Channel</h3>
+            <p>Get latest updates with photos and files</p>
+            <a href="https://t.me/${CHANNEL_USERNAME.replace('@', '')}" target="_blank" class="telegram-join-btn">
                 <i class="fab fa-telegram"></i> Join @${CHANNEL_USERNAME.replace('@', '')}
             </a>
         </div>
@@ -141,3 +143,10 @@ function showJoinButton(container) {
 }
 
 document.addEventListener('DOMContentLoaded', loadTelegramPosts);
+setInterval(loadTelegramPosts, 4 * 60 * 60 * 1000);
+
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        loadTelegramPosts();
+    }
+});
