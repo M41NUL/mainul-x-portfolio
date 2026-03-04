@@ -482,17 +482,41 @@
         </div>
     </footer>
 
-    <!-- Chatbot Bubble -->
+    <!-- Chatbot Section -->
     <div class="chatbot-toggle" id="chatbotToggle">
         <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <div class="header-left">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h3>MAINUL-X Helper</h3>
+                    <p class="bot-status">🟢 Online</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="closeChat"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatMessages"></div>
+        <div class="quick-questions" id="quickQuestions"></div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Type message...">
+            <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="script.js"></script>
     <script src="posts/telegram-posts.js"></script>
     <script src="reports/telegram-reports.js"></script>
+    
+    <!-- Chatbot scripts -->
     <script src="chatbot/chatbot.js"></script>
-    <script src="chatbot/chatbot-data.js"></script>
-    <script src="chatbot/chatbot-config.js"></script>
+    <script src="chatbot/memory.js"></script>
+    <script src="chatbot/nlp.js"></script>
+    <script src="chatbot/payment.js"></script>
 </body>
 </html>
