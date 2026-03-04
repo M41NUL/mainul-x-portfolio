@@ -65,7 +65,7 @@ async function handleGemini(message, res) {
   }
 }
 
-// Groq AI Handler
+// Groq AI Handler (Llama/Mixtral)
 async function handleGroq(message, res) {
   const API_KEY = process.env.GROQ_API_KEY;
   
@@ -87,7 +87,7 @@ async function handleGroq(message, res) {
           messages: [
             {
               role: 'system',
-              content: 'You are MAINUL-X Helper, an AI assistant for Md. Mainul Islam\'s portfolio. Answer helpfully.'
+              content: 'You are MAINUL-X Helper, an AI assistant for Md. Mainul Islam\'s portfolio. Answer helpfully and concisely.'
             },
             {
               role: 'user',
@@ -101,6 +101,8 @@ async function handleGroq(message, res) {
     );
 
     const data = await response.json();
+    
+    // Transform Groq response to match Gemini format
     return res.status(200).json({
       candidates: [{
         content: {
