@@ -1,0 +1,28 @@
+name: Generate Config
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Create config.js from secrets
+        run: |
+          echo "const CONFIG = {" > config.js
+          echo "  BOT_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'," >> config.js
+          echo "  CHANNEL_ID: '@mainulx_updates'," >> config.js
+          echo "  CHAT_ID: '8279574441'" >> config.js
+          echo "};" >> config.js
+          echo "" >> config.js
+          echo "if (typeof module !== 'undefined' && module.exports) {" >> config.js
+          echo "  module.exports = CONFIG;" >> config.js
+          echo "}" >> config.js
+          
+      - name: Upload config.js
+        uses: actions/upload-artifact@v3
+        with:
+          name: config
+          path: config.js
