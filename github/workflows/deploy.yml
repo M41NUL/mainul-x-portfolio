@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create config.js from secret
+      - name: Create config.js from secrets
         run: |
           echo "/*" > config.js
           echo "MAINUL-X Portfolio - Auto-generated Config" >> config.js
@@ -21,11 +21,19 @@ jobs:
           echo "*/" >> config.js
           echo "" >> config.js
           echo "const CONFIG = {" >> config.js
-          echo "  BOT_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'," >> config.js
           echo "  GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'," >> config.js
-          echo "  CHANNEL_ID: '@mainulx_updates'," >> config.js
-          echo "  CHAT_ID: '8279574441'" >> config.js
+          echo "  TELEGRAM_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'," >> config.js
+          echo "  GITHUB_USERNAME: 'M41NUL'," >> config.js
+          echo "  MAX_MEMORY: 10," >> config.js
+          echo "  TYPING_SPEED: 15," >> config.js
+          echo "  VOICE_LANG: 'bn-BD'," >> config.js
+          echo "  WHATSAPP: '01308850528'," >> config.js
+          echo "  BKASH: '01308850528'," >> config.js
+          echo "  NAGAD: '01308850528'," >> config.js
+          echo "  BANK_ACCOUNT: '1073831440001'" >> config.js
           echo "};" >> config.js
+          echo "" >> config.js
+          echo "console.log('✅ Config loaded from GitHub Actions');" >> config.js
           echo "" >> config.js
           echo "if (typeof module !== 'undefined' && module.exports) {" >> config.js
           echo "  module.exports = CONFIG;" >> config.js
