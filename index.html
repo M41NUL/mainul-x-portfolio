@@ -1,914 +1,498 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Md. Mainul Islam | MAINUL-X</title>
-
     
-
     <!-- Favicon -->
-
     <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/M41NUL/mainul-x-portfolio/main/assets/images/favicon.ico">
-
     
-
     <!-- Font Awesome 6 -->
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     
-
     <!-- Google Fonts -->
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
     
-
     <!-- CSS -->
-
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" href="posts/posts-style.css">
-
     <link rel="stylesheet" href="chatbot/chatbot.css">
-
 </head>
-
 <body>
-
     <!-- Top Bar -->
-
     <div class="top-bar">
-
         <div class="container top-bar-container">
-
             <a href="#home" class="home-icon"><i class="fas fa-home"></i></a>
-
             <div class="settings-wrapper">
-
                 <div class="setting-icon" id="settingsToggle"><i class="fas fa-cog"></i></div>
-
                 <div class="dropdown-menu" id="settingsMenu">
-
                     <button class="dropdown-item" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
-
                     <button class="dropdown-item" id="languageToggle"><i class="fas fa-language"></i> English / বাংলা</button>
-
                     <button class="dropdown-item" id="profileBtn"><i class="fas fa-user"></i> Profile</button>
-
                     <button class="dropdown-item" id="themeDropdown"><i class="fas fa-palette"></i> Theme</button>
-
                     <button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
-    <!-- Tab Menu - 8 icons in 1 line (small padding) -->
-
+    <!-- Tab Menu -->
     <div class="tab-menu">
-
         <div class="container tab-container">
-
             <a href="#home" class="tab-item active"><i class="fas fa-home"></i><span>Home</span></a>
-
             <a href="#services" class="tab-item"><i class="fas fa-cogs"></i><span>Services</span></a>
-
             <a href="#posts" class="tab-item"><i class="fas fa-newspaper"></i><span>Posts</span></a>
-
             <a href="#projects" class="tab-item"><i class="fas fa-code-branch"></i><span>Projects</span></a>
-
             <a href="#about" class="tab-item"><i class="fas fa-user"></i><span>About</span></a>
-
             <a href="#payment" class="tab-item"><i class="fas fa-credit-card"></i><span>Payment</span></a>
-
             <a href="#contact" class="tab-item"><i class="fas fa-envelope"></i><span>Contact</span></a>
-
             <a href="#report" class="tab-item"><i class="fas fa-bug"></i><span>Report</span></a>
-
         </div>
-
     </div>
 
     <!-- Home Section -->
-
     <section id="home" class="hero">
-
         <div class="container">
-
             <!-- Profile Image -->
-
             <div class="profile-wrapper">
-
                 <div class="profile-image">
-
                     <img src="https://raw.githubusercontent.com/M41NUL/mainul-x-portfolio/main/assets/images/profile.jpg" 
-
                          alt="Md. Mainul Islam"
-
                          onerror="this.src='https://raw.githubusercontent.com/M41NUL/mainul-x-portfolio/main/assets/images/profile2.jpg'">
-
                 </div>
-
                 <div class="online-indicator"></div>
-
                 <div class="rotating-border"></div>
-
             </div>
 
             <!-- Heading -->
-
             <h1 class="hero-title">MD. MAINUL ISLAM</h1>
-
             
-
             <!-- Subheading with Typing -->
-
             <div class="hero-subheading">
-
                 <span class="static-text">I'm a</span>
-
                 <span class="typing-text" id="typingEffect"></span>
-
             </div>
 
             <!-- Short Description - Italic -->
-
             <div class="hero-description">
-
                 <p style="font-style: italic;">Cyber Security Specialist | Digital Marketing Expert | Termux Tools Developer</p>
-
                 <p style="font-style: italic;">50+ open-source GitHub projects — building tools, websites & security solutions</p>
-
                 <p style="font-style: italic;">Founder of SOCINEST-X, a social media agency helping businesses grow online</p>
-
             </div>
 
-            <!-- My Expertise (5 items - Fixed) -->
-
+            <!-- My Expertise -->
             <div class="skills-preview">
-
                 <h3><i class="fas fa-bolt"></i> My Expertise</h3>
-
                 <div class="skills-container">
-
                     <div class="skill-item">
-
                         <div class="skill-circle" data-percent="95">
-
                             <svg viewBox="0 0 100 100">
-
                                 <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
-
                                 <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
-
                             </svg>
-
                             <span class="skill-percent">95%</span>
-
                         </div>
-
                         <p>Cyber Security</p>
-
                     </div>
-
                     <div class="skill-item">
-
                         <div class="skill-circle" data-percent="90">
-
                             <svg viewBox="0 0 100 100">
-
                                 <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
-
                                 <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
-
                             </svg>
-
                             <span class="skill-percent">90%</span>
-
                         </div>
-
                         <p>Digital Marketing</p>
-
                     </div>
-
                     <div class="skill-item">
-
                         <div class="skill-circle" data-percent="88">
-
                             <svg viewBox="0 0 100 100">
-
                                 <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
-
                                 <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
-
                             </svg>
-
                             <span class="skill-percent">88%</span>
-
                         </div>
-
                         <p>Programming</p>
-
                     </div>
-
                     <div class="skill-item">
-
                         <div class="skill-circle" data-percent="85">
-
                             <svg viewBox="0 0 100 100">
-
                                 <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
-
                                 <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
-
                             </svg>
-
                             <span class="skill-percent">85%</span>
-
                         </div>
-
                         <p>Termux Tools</p>
-
                     </div>
-
                     <div class="skill-item">
-
                         <div class="skill-circle" data-percent="92">
-
                             <svg viewBox="0 0 100 100">
-
                                 <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
-
                                 <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
-
                             </svg>
-
                             <span class="skill-percent">92%</span>
-
                         </div>
-
                         <p>Social Media</p>
-
                     </div>
-
                 </div>
-
             </div>
 
-            <!-- What Clients Say (5 items) -->
-
+            <!-- Testimonials -->
             <div class="testimonial-section">
-
                 <h3><i class="fas fa-quote-right"></i> What Clients Say</h3>
-
                 <div class="testimonial-slider">
-
                     <div class="testimonial-card active">
-
                         <i class="fas fa-quote-right"></i>
-
                         <p>"Mainul's security tools saved our company from multiple attacks! His expertise in cyber security is unmatched."</p>
-
                         <div class="client-info">
-
                             <h4>- Tech Solutions Ltd.</h4>
-
                             <span>CEO, Tech Solutions</span>
-
                         </div>
-
                     </div>
-
                     <div class="testimonial-card">
-
                         <i class="fas fa-quote-right"></i>
-
                         <p>"Best Termux tools developer in Bangladesh! His tools are very powerful and easy to use."</p>
-
                         <div class="client-info">
-
                             <h4>- Anonymous Client</h4>
-
                             <span>Ethical Hacker</span>
-
                         </div>
-
                     </div>
-
                     <div class="testimonial-card">
-
                         <i class="fas fa-quote-right"></i>
-
                         <p>"Digital marketing strategies from MAINUL-X increased our sales by 200% in just 3 months!"</p>
-
                         <div class="client-info">
-
                             <h4>- E-commerce Store</h4>
-
                             <span>Owner</span>
-
                         </div>
-
                     </div>
-
                     <div class="testimonial-card">
-
                         <i class="fas fa-quote-right"></i>
-
                         <p>"The Termux tools he developed are simply amazing. Highly recommended for security professionals."</p>
-
                         <div class="client-info">
-
                             <h4>- CyberTech BD</h4>
-
                             <span>CTO</span>
-
                         </div>
-
                     </div>
-
                     <div class="testimonial-card">
-
                         <i class="fas fa-quote-right"></i>
-
                         <p>"SOCINEST-X transformed our social media presence. Our engagement went up by 300%!"</p>
-
                         <div class="client-info">
-
                             <h4>- Local Business</h4>
-
                             <span>Owner</span>
-
                         </div>
-
                     </div>
-
                 </div>
-
                 <div class="slider-dots">
-
                     <span class="dot active"></span>
-
                     <span class="dot"></span>
-
                     <span class="dot"></span>
-
                     <span class="dot"></span>
-
                     <span class="dot"></span>
-
                 </div>
-
             </div>
 
-            <!-- Currently Working On (5 items) -->
-
+            <!-- Currently Working On -->
             <div class="current-work">
-
                 <h3><i class="fas fa-clock"></i> Currently Working On</h3>
-
                 <div class="work-progress">
-
                     <div class="progress-item">
-
                         <div class="progress-header">
-
                             <span>Termux AI Tool</span>
-
                             <span>75%</span>
-
                         </div>
-
                         <div class="progress-bar">
-
                             <div class="progress-fill" style="width:75%"></div>
-
                         </div>
-
                     </div>
-
                     <div class="progress-item">
-
                         <div class="progress-header">
-
                             <span>Cyber Security Course</span>
-
                             <span>40%</span>
-
                         </div>
-
                         <div class="progress-bar">
-
                             <div class="progress-fill" style="width:40%"></div>
-
                         </div>
-
                     </div>
-
                     <div class="progress-item">
-
                         <div class="progress-header">
-
                             <span>Port Scanner Pro</span>
-
                             <span>90%</span>
-
                         </div>
-
                         <div class="progress-bar">
-
                             <div class="progress-fill" style="width:90%"></div>
-
                         </div>
-
                     </div>
-
                     <div class="progress-item">
-
                         <div class="progress-header">
-
                             <span>SOCINEST-X Website</span>
-
                             <span>60%</span>
-
                         </div>
-
                         <div class="progress-bar">
-
                             <div class="progress-fill" style="width:60%"></div>
-
                         </div>
-
                     </div>
-
                     <div class="progress-item">
-
                         <div class="progress-header">
-
                             <span>New SMS Tool</span>
-
                             <span>30%</span>
-
                         </div>
-
                         <div class="progress-bar">
-
                             <div class="progress-fill" style="width:30%"></div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </section>
 
     <!-- Services Section -->
-
     <section id="services" class="section">
-
         <div class="container">
-
             <h2 class="section-title"><i class="fas fa-cogs"></i> Services</h2>
-
             <div class="services-grid-modern">
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-
                     <h3>Digital Marketing</h3>
-
                     <p>Social media management, growth hacking, content strategy</p>
-
                     <div class="card-tag">Marketing</div>
-
                 </div>
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
-
                     <h3>Cyber Security</h3>
-
                     <p>Penetration testing, security auditing, ethical hacking</p>
-
                     <div class="card-tag">Security</div>
-
                 </div>
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-code"></i></div>
-
                     <h3>Programming</h3>
-
                     <p>Custom software, automation scripts, web development</p>
-
                     <div class="card-tag">Development</div>
-
                 </div>
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-terminal"></i></div>
-
                     <h3>Termux Tools</h3>
-
                     <p>Custom scripts, hacking tools, automation solutions</p>
-
                     <div class="card-tag">Termux</div>
-
                 </div>
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-cubes"></i></div>
-
                     <h3>App Subscriptions</h3>
-
                     <p>Subscription management, boosting services</p>
-
                     <div class="card-tag">Subscriptions</div>
-
                 </div>
-
                 <div class="service-card-modern">
-
                     <div class="card-icon"><i class="fas fa-bullhorn"></i></div>
-
                     <h3>Social Media Agency</h3>
-
                     <p>Complete social media management, brand promotion</p>
-
                     <div class="card-tag">Agency</div>
-
                 </div>
-
             </div>
-
         </div>
-
     </section>
 
     <!-- Recent Posts Section -->
-
     <section id="posts" class="section">
-
         <div class="container">
-
             <h2 class="section-title"><i class="fas fa-newspaper"></i> Recent Posts</h2>
-
             <div id="postsContainer"></div>
-
         </div>
-
     </section>
 
     <!-- Projects Section -->
-
     <section id="projects" class="section">
-
         <div class="container">
-
             <h2 class="section-title"><i class="fas fa-code-branch"></i> Recent Projects</h2>
-
             <div class="projects-list" id="projectsList"></div>
-
             <div class="view-more">
-
                 <a href="https://github.com/M41NUL?tab=repositories" target="_blank" class="btn">
-
                     <i class="fab fa-github"></i> View All Projects (50+)
-
                 </a>
-
             </div>
-
         </div>
-
     </section>
 
-    <!-- About Section (Bold Italic Text) -->
-
+    <!-- About Section -->
     <section id="about" class="section">
-
         <div class="container">
-
             <h2 class="section-title"><i class="fas fa-user"></i> About Me</h2>
-
             <div class="about-content">
-
                 <div class="about-image">
-
                     <img src="https://raw.githubusercontent.com/M41NUL/mainul-x-portfolio/main/assets/images/profile2.jpg" alt="Md. Mainul Islam">
-
                 </div>
-
                 <div class="about-text">
-
                     <p style="font-weight: 600; font-style: italic;">I work professionally in Cyber Security and Digital Marketing. I primarily create various tools, websites, and applications for Termux. My GitHub account MAINUL-X has over 50 projects — all open source.</p>
-
                     <p style="font-weight: 600; font-style: italic;">My journey started with Termux Tools Development. Now I work on security, automation, and digital growth — using technology to solve real-world problems.</p>
-
                     <p style="font-weight: 600; font-style: italic;">I run SOCINEST-X, a social media agency handling online promotion, content management, and social media strategy.</p>
-
                     <p style="font-weight: 600; font-style: italic;">With expertise in both security and marketing, I provide completely digital solutions — from start to finish.</p>
-
                 </div>
-
             </div>
-
         </div>
-
     </section>
 
-    <!-- Payment Section - 2 Cards -->
-
+    <!-- Payment Section -->
     <section id="payment" class="section">
-
         <div class="container">
-
             <h2 class="section-title"><i class="fas fa-credit-card"></i> Payment Options</h2>
-
             <div class="payment-grid-split">
-
-                <!-- Card 1: Mobile Banking -->
-
+                <!-- Mobile Banking -->
                 <div class="payment-card-group">
-
                     <h3 class="payment-group-title"><i class="fas fa-mobile-alt"></i> Mobile Banking</h3>
-
                     
-
                     <div class="payment-card-modern">
-
                         <div class="payment-header">
-
                             <i class="fas fa-money-bill-wave"></i>
-
                             <h4>Nagad</h4>
-
                         </div>
-
                         <div class="payment-details">
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Personal</span>
-
                                 <span class="payment-value copy-text" data-copy="01308850528">01308850528 <i class="fas fa-copy"></i></span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Holder</span>
-
                                 <span class="payment-value">MD. MAINUL ISLAM</span>
-
                             </div>
-
                         </div>
-
                     </div>
 
                     <div class="payment-card-modern">
-
                         <div class="payment-header">
-
                             <i class="fas fa-mobile-alt"></i>
-
                             <h4>bKash (Personal)</h4>
-
                         </div>
-
                         <div class="payment-details">
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Number</span>
-
                                 <span class="payment-value copy-text" data-copy="01308850528">01308850528 <i class="fas fa-copy"></i></span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Holder</span>
-
                                 <span class="payment-value">MD. MAINUL ISLAM</span>
-
                             </div>
-
                         </div>
-
                     </div>
 
                     <div class="payment-card-modern">
-
                         <div class="payment-header">
-
                             <i class="fas fa-store"></i>
-
                             <h4>bKash (Merchant)</h4>
-
                         </div>
-
                         <div class="payment-details">
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Merchant</span>
-
                                 <span class="payment-value copy-text" data-copy="01858845308">01858845308 <i class="fas fa-copy"></i></span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Holder</span>
-
                                 <span class="payment-value">MD. MAINUL ISLAM</span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
-                <!-- Card 2: Bank Account -->
-
+                <!-- Bank Account -->
                 <div class="payment-card-group">
-
                     <h3 class="payment-group-title"><i class="fas fa-university"></i> Bank Account</h3>
-
                     
-
                     <div class="payment-card-modern bank-card">
-
                         <div class="payment-header">
-
                             <i class="fas fa-university"></i>
-
                             <h4>BRAC BANK</h4>
-
                         </div>
-
                         <div class="payment-details">
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Holder</span>
-
                                 <span class="payment-value">MD. MAINUL ISLAM</span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Account</span>
-
                                 <span class="payment-value copy-text" data-copy="1073831440001">1073831440001 <i class="fas fa-copy"></i></span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Branch</span>
-
                                 <span class="payment-value">Agent Banking</span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">Routing</span>
-
                                 <span class="payment-value copy-text" data-copy="060270609">060270609 <i class="fas fa-copy"></i></span>
-
                             </div>
-
                             <div class="payment-row">
-
                                 <span class="payment-label">SWIFT</span>
-
                                 <span class="payment-value copy-text" data-copy="BRAKBDDH">BRAKBDDH <i class="fas fa-copy"></i></span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </section>
 
-    <!-- Contact Section - 4 Columns Grid -->
-<section id="contact" class="section">
-    <div class="container">
-        <h2 class="section-title"><i class="fas fa-envelope"></i> Contact Me</h2>
-        <div class="contact-grid-side" id="contactGrid"></div>
-    </div>
-</section>
-
-  <!-- Report Section -->
-<section id="report" class="section">
-    <div class="container">
-        <h2 class="section-title"><i class="fas fa-bug"></i> Report an Issue</h2>
-        
-        <div class="report-section">
-            <form id="reportForm">
-                <!-- Name Field -->
-                <div class="form-group">
-                    <label for="name">Your Name</label>
-                    <input type="text" id="name" placeholder="Enter your name" required>
-                </div>
-                
-                <!-- Email Field -->
-                <div class="form-group">
-                    <label for="email">Your Email</label>
-                    <input type="email" id="email" placeholder="Enter your email" required>
-                </div>
-                
-                <!-- Message Field -->
-                <div class="form-group">
-                    <label for="message">Describe the issue...</label>
-                    <textarea id="message" rows="4" placeholder="What went wrong?" required></textarea>
-                </div>
-                
-                <!-- File Input -->
-                <div class="form-group file-input">
-                    <label for="fileInput">
-                        <i class="fas fa-paperclip"></i> Attach File
-                    </label>
-                    <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.txt">
-                    <span class="file-name">No file chosen</span>
-                </div>
-                
-                <!-- Submit Button -->
-                <button type="submit" class="submit-btn">
-                    <i class="fab fa-telegram"></i> Send Report
-                </button>
-            </form>
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-envelope"></i> Contact Me</h2>
+            <div class="contact-grid-side" id="contactGrid"></div>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Report Section -->
+    <section id="report" class="section">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-bug"></i> Report an Issue</h2>
+            
+            <div class="report-section">
+                <form id="reportForm">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Describe the issue...</label>
+                        <textarea id="message" rows="4" placeholder="What went wrong?" required></textarea>
+                    </div>
+                    
+                    <div class="form-group file-input">
+                        <label for="fileInput">
+                            <i class="fas fa-paperclip"></i> Attach File
+                        </label>
+                        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.txt">
+                        <span class="file-name">No file chosen</span>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fab fa-telegram"></i> Send Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
-
     <footer>
-
         <div class="container">
-
             <p>© 2026 MAINUL - X. All rights reserved.</p>
-
             <p>Licensed under MIT License | Developed by Md. Mainul Islam</p>
-
         </div>
-
     </footer>
 
     <!-- Chatbot Bubble -->
-
     <div class="chatbot-toggle" id="chatbotToggle">
-
         <i class="fas fa-comment-dots"></i>
-
     </div>
 
     <!-- Scripts -->
-
     <script src="script.js"></script>
-
     <script src="posts/telegram-posts.js"></script>
-
     <script src="reports/telegram-reports.js"></script>
-
     <script src="chatbot/chatbot.js"></script>
-
+    <script src="chatbot/chatbot-data.js"></script>
+    <script src="chatbot/chatbot-config.js"></script>
 </body>
-
 </html>
