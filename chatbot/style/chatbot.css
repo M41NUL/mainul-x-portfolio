@@ -239,7 +239,7 @@ GitHub: https://github.com/M41NUL
 
 /* Input Area - Fixed Height */
 .chatbot-input {
-    padding: 10px 12px;
+    padding: 8px 10px;
     background: var(--card-bg);
     border-top: 1px solid var(--border);
     display: flex;
