@@ -1,17 +1,15 @@
-// MAINUL-X Voice Input - Md. Mainul Islam (M41NUL)
-
+// chatbot/voice.js
 let recognition = null;
 let isListening = false;
 
 function initVoice() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        console.warn('Voice recognition not supported');
+        alert('Voice not supported. Try Chrome browser.');
         return false;
     }
     
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-    
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'bn-BD,en-US';
@@ -29,13 +27,8 @@ function initVoice() {
     
     recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
-        const input = document.getElementById('userInput');
-        if (input) {
-            input.value = text;
-            if (typeof window.sendMessage === 'function') {
-                window.sendMessage();
-            }
-        }
+        document.getElementById('userInput').value = text;
+        if (typeof sendMessage === 'function') sendMessage();
     };
     
     recognition.onerror = (event) => {
@@ -50,10 +43,7 @@ function initVoice() {
 function startVoice() {
     if (!recognition) {
         const supported = initVoice();
-        if (!supported) {
-            alert('Voice not supported. Try Chrome browser.');
-            return;
-        }
+        if (!supported) return;
     }
     
     if (isListening) {
@@ -64,5 +54,4 @@ function startVoice() {
 }
 
 window.startVoice = startVoice;
-
-console.log('✅ Voice input loaded');
+console.log('✅ Voice loaded');
