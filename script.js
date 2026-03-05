@@ -46,6 +46,81 @@ const contacts = [
     { icon: 'fas fa-envelope', name: 'Email 2', value: 'devmainulislam@gmail.com', url: 'mailto:devmainulislam@gmail.com', color: 'email' }
 ];
 
+// ========== Posts Data ==========
+const posts = [
+    {
+        title: "M41NUL Bot",
+        content: "Telegram bot for automation and custom commands.",
+        image: "https://raw.githubusercontent.com/M41NUL/YTP/main/screenshots/ytp-main-menu.png",
+        url: "https://github.com/M41NUL/M41NUL-Bot"
+    },
+    {
+        title: "TITAN-X BOMBER",
+        content: "SMS bomber tool for Termux & Linux.",
+        image: "https://github.com/M41NUL/titan-x-bomber/blob/main/screenshots/attack_result.jpg?raw=true",
+        url: "https://github.com/M41NUL/titan-x-bomber"
+    },
+    {
+        title: "QR Code Generator",
+        content: "Generate QR codes for text, URLs, and numbers.",
+        image: "https://github.com/M41NUL/QR-CODE-GENERATOR/blob/main/screenshots/Screenshot_20260213-110231.jpg?raw=true",
+        url: "https://m41nul.github.io/QR-CODE-GENERATOR/"
+    },
+    {
+        title: "Social Downloader Pro",
+        content: "Download videos from TikTok, Facebook, and Instagram.",
+        image: "https://raw.githubusercontent.com/M41NUL/social-server-bd/main/assets/Screenshot_20260212-021151.jpg",
+        url: "https://m41nul.github.io/social-server-bd/"
+    },
+    {
+        title: "Internet Speed Meter",
+        content: "Check your internet speed with live stats.",
+        image: "https://github.com/M41NUL/internet-speed-meter/blob/main/1st%20ss.jpg?raw=true",
+        url: "https://github.com/M41NUL/internet-speed-meter"
+    },
+    {
+        title: "MAINUL-X Encoder",
+        content: "Encode and decode text with multiple formats.",
+        image: "https://raw.githubusercontent.com/M41NUL/mainul-x-encoder/main/Screenshot_2025-05-07-02-40-06-522_com.termux.jpg",
+        url: "https://github.com/M41NUL/mainul-x-encoder"
+    },
+    {
+        title: "Live Code Runner",
+        content: "Write and test HTML, CSS, and JavaScript in real-time.",
+        image: "https://raw.githubusercontent.com/M41NUL/live-code-runner/main/image/HTML.jpg",
+        url: "https://m41nul.github.io/live-code-runner/"
+    }
+];
+
+// ========== Load Posts Function ==========
+function loadPosts() {
+    const postsGrid = document.getElementById('postsGrid');
+    if (!postsGrid) return;
+    
+    postsGrid.innerHTML = '';
+    
+    posts.forEach(post => {
+        const postCard = document.createElement('article');
+        postCard.className = 'post-card';
+        
+        postCard.innerHTML = `
+            <div class="post-image">
+                <img src="${post.image}" alt="${post.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=' + encodeURIComponent('${post.title}')">
+            </div>
+            <div class="post-content">
+                <h3 class="post-title">${post.title}</h3>
+                <p class="post-description">${post.content}</p>
+                <a href="${post.url}" target="_blank" class="post-link">
+                    View Project <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        `;
+        
+        postsGrid.appendChild(postCard);
+    });
+}
+
+
 // ========== DOM Content Loaded ==========
 document.addEventListener('DOMContentLoaded', function() {
     loadProjects();
