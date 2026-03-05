@@ -1,7 +1,6 @@
-// api/chat.js - Vercel Serverless Function for Gemini & Groq
+// api/chat.js - Complete Chat API with Gemini & Groq
 // Author: Md. Mainul Islam
-// GitHub: https://github.com/M41NUL
-// Portfolio: https://mainul-x-portfolio.vercel.app
+// GitHub: M41NUL
 
 export default async function handler(req, res) {
   // CORS headers
@@ -14,15 +13,23 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Get message from frontend (history বাদ দেওয়া হয়েছে)
-    const { message, type = 'gemini' } = req.body;
-
+    // Parse body
+    let parsedBody = req.body;
+    if (typeof req.body === 'string') {
+      try {
+        parsedBody = JSON.parse(req.body);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON format' });
+      }
+    }
+    
+    const { message, type = 'gemini' } = parsedBody;
+    
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
@@ -35,7 +42,7 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Chat API Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
@@ -49,52 +56,58 @@ async function handleGemini(message, res) {
   }
 
   try {
-    // Direct call without history
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            role: 'user',
-            parts: [{ text: message }]
-          }],
-          systemInstruction: {
-            parts: [{
-              text: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
-
-RULES:
-- Detect user's language automatically.
-- If user writes in Bangla/Banglish → reply in Bangla
-- If user writes in English → reply in English
-- If user sends only emojis → understand emotion and reply naturally
-- Be friendly, short and helpful
-
-Examples:
-🙂 → friendly reply
-😂 → laugh with user
-😢 → comfort
-🔥 → excitement
-🐸 → playful reply`
-            }]
-          },
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 800
-          }
-        })
-      }
-    );
-
-    const data = await response.json();
+    // Try multiple model names
+    const models = [
+      'gemini-1.5-pro',
+      'gemini-pro',
+      'gemini-1.0-pro'
+    ];
     
-    if (data.error) {
-      console.error('Gemini API Error:', data.error);
-      return res.status(500).json({ error: data.error.message });
+    let lastError = null;
+    
+    for (const model of models) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: message }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 800
+              }
+            })
+          }
+        );
+        
+        const data = await response.json();
+        
+        if (!data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          return res.status(200).json({
+            candidates: [{
+              content: {
+                parts: [{
+                  text: data.candidates[0].content.parts[0].text
+                }]
+              }
+            }]
+          });
+        }
+        
+        lastError = data.error;
+      } catch (e) {
+        lastError = e;
+        continue;
+      }
     }
-
-    return res.status(200).json(data);
+    
+    // If all models fail, try Groq as fallback
+    console.log('Gemini failed, trying Groq...');
+    return await handleGroq(message, res);
 
   } catch (error) {
     console.error('Gemini Error:', error);
@@ -111,36 +124,31 @@ async function handleGroq(message, res) {
   }
 
   try {
-    // Direct call without history
-    const response = await fetch(
-      'https://api.groq.com/openai/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
 
 RULES:
 - Detect user's language automatically.
 - If user writes in Bangla/Banglish → reply in Bangla
 - If user writes in English → reply in English
-- If user sends only emojis → understand emotion and reply naturally
 - Be friendly, short and helpful`
-            },
-            { role: 'user', content: message }
-          ],
-          temperature: 0.8,
-          max_tokens: 800
-        })
-      }
-    );
+          },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 800
+      })
+    });
 
     const data = await response.json();
     
@@ -149,7 +157,6 @@ RULES:
       return res.status(500).json({ error: data.error.message });
     }
 
-    // Transform Groq response to match Gemini format
     return res.status(200).json({
       candidates: [{
         content: {
