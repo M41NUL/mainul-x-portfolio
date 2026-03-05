@@ -49,10 +49,10 @@ const contacts = [
 // ========== Posts Data ==========
 const posts = [
     {
-        title: "M41NUL Bot",
-        content: "Telegram bot for automation and custom commands.",
+        title: "YTP",
+        content: "YTP - YouTube Video & Audio Downloader.",
         image: "https://raw.githubusercontent.com/M41NUL/YTP/main/screenshots/ytp-main-menu.png",
-        url: "https://github.com/M41NUL/M41NUL-Bot"
+        url: "https://github.com/M41NUL/YTP"
     },
     {
         title: "TITAN-X BOMBER",
