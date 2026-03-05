@@ -12,31 +12,37 @@ async function processMessage(message) {
 
     const text = message.toLowerCase();
 
-    // Quick replies
-    if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
-        return "👋 Hello! How can I help you today?";
-    }
+    // ===== QUICK REPLIES =====
 
-    if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
-        return "💰 **Payment Options**\n\n📱 Nagad: 01308850528\n📱 bKash: 01308850528\n🏦 BRAC Bank: 1073831440001";
-    }
+// Greeting
+if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
+    return "Hello. How can I assist you today?";
+}
 
-    if (text.includes("github") || text.includes("গিটহাব")) {
-        return "🐙 **GitHub:** https://github.com/M41NUL\n📦 50+ open source projects";
-    }
+// Payment
+if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
+    return "Payment Options\n\nNagad: 01308850528\nbKash: 01308850528\nBRAC Bank: 1073831440001\nAccount Holder: MD. MAINUL ISLAM\n\nSecure and verified payment methods.";
+}
 
-    if (text.includes("contact") || text.includes("যোগাযোগ")) {
-        return "📞 **Contact:**\n📧 githubmainul@gmail.com\n📱 WhatsApp: 01308850528\n✈️ Telegram: @mdmainulislaminfo";
-    }
+// GitHub
+if (text.includes("github") || text.includes("গিটহাব") || text.includes("project")) {
+    return "GitHub Profile\n\nhttps://github.com/M41NUL\n\nMore than 50 open source projects including Termux tools, automation scripts, and developer utilities.";
+}
 
-    if (text.includes("service") || text.includes("সার্ভিস")) {
-        return "📋 **Services:**\n🔹 Digital Marketing\n🔹 Cyber Security\n🔹 Programming\n🔹 Termux Tools\n🔹 App Subscriptions\n🔹 SOCINEST-X Agency";
-    }
+// Contact
+if (text.includes("contact") || text.includes("যোগাযোগ")) {
+    return "Contact Information\n\nEmail: githubmainul@gmail.com\nWhatsApp: 01308850528\nTelegram: @mdmainulislaminfo\n\nYou will usually receive a response within a few hours.";
+}
 
-    if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
-        return "👤 **Md. Mainul Islam**\n🔐 Cyber Security Specialist\n📈 Digital Marketing Expert\n🧰 Termux Tools Developer\n📦 50+ GitHub Projects\n🚀 Founder of SOCINEST-X";
-    }
+// Services
+if (text.includes("service") || text.includes("সার্ভিস")) {
+    return "Available Services\n\nCyber Security\nDigital Marketing\nProgramming and Automation\nTermux Tools Development\nSocial Media Growth\nSOCINEST-X Agency";
+}
 
+// About
+if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
+    return "Md. Mainul Islam (MAINUL-X)\n\nCyber Security Specialist\nDigital Marketing Expert\nProgrammer and Automation Developer\nTermux Tools Creator\nMore than 50 open source projects on GitHub\nFounder of SOCINEST-X";
+}
     // Default → AI
     return await askAI(message);
 }
