@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   }
 }
 
-// Gemini AI Handler with System Instruction
+// Gemini Handler - System prompt merged with message
 async function handleGemini(message, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
   
@@ -43,6 +43,20 @@ async function handleGemini(message, res) {
   }
 
   try {
+    // System prompt merged with user message
+    const prompt = `You are MAINUL-X AI HELPER.
+
+Rules:
+- Detect user's language automatically.
+- If user writes in Bangla → reply in Bangla.
+- If user writes in English → reply in English.
+- If user sends emojis → reply naturally.
+- Be friendly, short and helpful.
+- You represent developer Md. Mainul Islam.
+
+User message:
+${message}`;
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
@@ -50,52 +64,32 @@ async function handleGemini(message, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{
-            parts: [{
-              text: message
-            }]
-          }],
-          systemInstruction: {
-            parts: [{
-              text: `You are MAINUL-X AI HELPER.
-
-Rules:
-- Detect user's language automatically.
-- If user writes in Bangla → reply in Bangla.
-- If user writes in English → reply in English.
-- If user sends only emojis → reply in the same language as previous message.
-- Be friendly, short and helpful.
-- You represent developer Md. Mainul Islam.`
-            }]
-          }
+            parts: [{ text: prompt }]
+          }]
         })
       }
     );
 
     const data = await response.json();
     
-    // Safe response parsing
-    let reply = "Sorry, I couldn't process that.";
+    let reply = "Sorry, I couldn't respond.";
     if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       reply = data.candidates[0].content.parts[0].text;
     }
 
     return res.status(200).json({
       candidates: [{
-        content: {
-          parts: [{
-            text: reply
-          }]
-        }
+        content: { parts: [{ text: reply }] }
       }]
     });
-    
+
   } catch (error) {
     console.error('Gemini Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-// Groq AI Handler
+// Groq Handler
 async function handleGroq(message, res) {
   const API_KEY = process.env.GROQ_API_KEY;
   
@@ -121,9 +115,9 @@ async function handleGroq(message, res) {
 
 Rules:
 - Detect user's language automatically.
-- If user writes in Bangla → reply in Bangla.
-- If user writes in English → reply in English.
-- Be friendly, short and helpful.
+- Bangla message → reply Bangla
+- English message → reply English
+- Be friendly and short.
 - You represent developer Md. Mainul Islam.`
             },
             {
@@ -139,14 +133,12 @@ Rules:
 
     const data = await response.json();
     
-    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
+    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond.";
 
     return res.status(200).json({
       candidates: [{
         content: {
-          parts: [{
-            text: reply
-          }]
+          parts: [{ text: reply }]
         }
       }]
     });
