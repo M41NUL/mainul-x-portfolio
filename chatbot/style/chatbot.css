@@ -103,7 +103,7 @@ GitHub: https://github.com/M41NUL
     flex-direction: row;
 }
 
-/* ===== Avatar Icons - Small ===== */
+/* ===== Avatar Icons ===== */
 .message-avatar {
     width: 24px;
     height: 24px;
@@ -162,18 +162,40 @@ GitHub: https://github.com/M41NUL
     border-bottom-right-radius: 4px;
 }
 
-/* ===== Message Time - Very Small ===== */
+/* ===== Message Footer ===== */
+.message-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+/* ===== Read Receipt - খুব ছোট ===== */
+.read-receipt {
+    font-size: 8px !important;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    opacity: 0.8;
+    letter-spacing: 0.3px;
+}
+
+.read-receipt i {
+    font-size: 7px !important;
+}
+
+/* ===== Message Time ===== */
 .message-time {
-    font-size: 9px;
+    font-size: 8px !important;
     color: var(--gray);
-    margin-top: 3px;
     display: flex;
     align-items: center;
     gap: 3px;
 }
 
 .message-time i {
-    font-size: 7px;
+    font-size: 7px !important;
 }
 
 /* ===== Typing Indicator ===== */
@@ -217,18 +239,18 @@ GitHub: https://github.com/M41NUL
     background: var(--darker);
     border: 1px solid var(--border);
     color: var(--light);
-    padding: 5px 10px;
-    border-radius: 16px;
-    font-size: 10px;
+    padding: 4px 8px !important;
+    border-radius: 14px !important;
+    font-size: 9px !important;
     cursor: pointer;
     white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
 }
 
 .quick-btn i {
-    font-size: 11px;
+    font-size: 10px !important;
     color: var(--primary);
 }
 
@@ -241,7 +263,7 @@ GitHub: https://github.com/M41NUL
     color: white;
 }
 
-/* ===== Input Area - Small Icons ===== */
+/* ===== Input Area ===== */
 .chatbot-input {
     padding: 8px 10px;
     background: var(--card-bg);
@@ -317,7 +339,7 @@ GitHub: https://github.com/M41NUL
     transform: scale(1.05);
 }
 
-/* ===== Toggle Button - Small ===== */
+/* ===== Toggle Button ===== */
 .chatbot-toggle {
     position: fixed;
     bottom: 20px;
@@ -383,4 +405,4 @@ GitHub: https://github.com/M41NUL
         height: 22px;
         font-size: 10px;
     }
-}
+    }
