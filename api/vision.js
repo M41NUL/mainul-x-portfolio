@@ -1,4 +1,4 @@
-// api/vision.js - Image analysis with Gemini Vision
+// api/vision.js
 export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     
     try {
         const { image } = req.body;
-        const API_KEY = process.env.GEMINI_API_KEY;
+        const API_KEY = process.env.GEMINI_API_KEY;  // একই API key
         
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     contents: [{
                         parts: [
-                            { text: "Describe this image in detail. What do you see?" },
+                            { text: "Describe this image briefly" },
                             { inlineData: { mimeType: "image/jpeg", data: image } }
                         ]
                     }]
@@ -34,7 +34,18 @@ export default async function handler(req, res) {
         );
         
         const data = await response.json();
-        return res.status(200).json(data);
+        
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            return res.status(200).json(data);
+        }
+        
+        return res.status(200).json({ 
+            candidates: [{ 
+                content: { 
+                    parts: [{ text: "📸 Image received! But couldn't analyze." }] 
+                } 
+            }] 
+        });
         
     } catch (error) {
         return res.status(500).json({ error: error.message });
