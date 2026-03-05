@@ -1,4 +1,4 @@
-// api/report.js - Terminal Theme Version (FIXED)
+// api/report.js - Terminal Theme Version
 // Developer: Md. Mainul Islam
 // GitHub: M41NUL
 // Contact: +8801308850528
@@ -6,12 +6,10 @@
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -21,13 +19,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    let parsedBody = req.body;
+    if (typeof req.body === 'string') {
+      try {
+        parsedBody = JSON.parse(req.body);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON format' });
+      }
+    }
+    
+    const { message } = parsedBody;
     
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // FIXED: Better parsing
     let name = 'Unknown';
     let email = 'Unknown'; 
     let msg = message;
@@ -35,19 +41,18 @@ export default async function handler(req, res) {
     const lines = message.split('\n');
     
     for (const line of lines) {
-      if (line.includes('Name:') || line.includes('NAME:')) {
-        name = line.replace(/Name:|NAME:/i, '').trim();
-      } else if (line.includes('Email:') || line.includes('EMAIL:')) {
-        email = line.replace(/Email:|EMAIL:/i, '').trim();
-      } else if (line.includes('Message:') || line.includes('MESSAGE:')) {
-        msg = line.replace(/Message:|MESSAGE:/i, '').trim();
+      const trimmed = line.trim();
+      if (trimmed.toLowerCase().startsWith('name:')) {
+        name = trimmed.substring(5).trim();
+      } else if (trimmed.toLowerCase().startsWith('email:')) {
+        email = trimmed.substring(6).trim();
+      } else if (trimmed.toLowerCase().startsWith('message:')) {
+        msg = trimmed.substring(8).trim();
       }
     }
 
-    // If still unknown, try to guess from structure
     if (name === 'Unknown' && lines.length > 0) name = lines[0] || 'Unknown';
     if (email === 'Unknown' && lines.length > 1) email = lines[1] || 'Unknown';
-    if (msg === message && lines.length > 2) msg = lines.slice(2).join('\n') || message;
 
     const time = new Date().toLocaleString('en-US', {
       year: 'numeric',
@@ -59,7 +64,6 @@ export default async function handler(req, res) {
       hour12: true
     });
 
-    // Terminal Theme HTML
     const htmlTemplate = `
       <div style="max-width:600px; margin:0 auto; background:#1e1e1e; border-radius:15px; overflow:hidden; font-family:'Courier New',monospace;">
         <div style="background:#2d2d2d; padding:15px; display:flex; align-items:center; gap:10px;">
@@ -100,15 +104,12 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    // Plain text version
     const textVersion = `MAINUL-X REPORT\n━━━━━━━━━━━━━━━━━━━━━━\nUSERNAME: ${name}\nEMAIL: ${email}\nMESSAGE: ${msg}\nTIME: ${time}\nPRIORITY: NORMAL\n━━━━━━━━━━━━━━━━━━━━━━`;
 
-    // Check if Gmail credentials exist
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
       return res.status(500).json({ error: 'Gmail credentials not configured' });
     }
 
-    // Send email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
