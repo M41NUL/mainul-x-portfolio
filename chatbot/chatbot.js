@@ -5,6 +5,21 @@ const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 let messageId = 0;
 let userName = null;
 
+// ===== LANGUAGE MEMORY (NEW) =====
+let lastLanguage = localStorage.getItem('chat_lang') || 'en';
+
+// ===== EMOJI DETECTION (NEW) =====
+function isOnlyEmojis(text) {
+    const emojiRegex = /^[\p{Emoji}\s]+$/u;
+    return emojiRegex.test(text.trim());
+}
+
+function detectLanguage(message) {
+    const banglaPattern = /[\u0980-\u09FF]/;
+    if (banglaPattern.test(message)) return 'bn';
+    return 'en';
+}
+
 // ===== USER NAME DETECTION =====
 function detectUserName(message) {
     const patterns = [
@@ -88,15 +103,25 @@ async function processMessage(message) {
     return await askAI(message);
 }
 
-// ===== AI REQUEST (Auto switch between Gemini & Groq) =====
+// ===== AI REQUEST with LANGUAGE MEMORY =====
 async function askAI(message) {
     try {
+        // Detect language and save
+        const currentLang = detectLanguage(message);
+        lastLanguage = currentLang;
+        localStorage.setItem('chat_lang', lastLanguage);
+
+        // Check if only emojis
+        const onlyEmojis = isOnlyEmojis(message);
+        
         // First try Gemini
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 message: message,
+                onlyEmojis: onlyEmojis,
+                lastLanguage: lastLanguage,
                 type: 'gemini' 
             })
         });
@@ -115,6 +140,8 @@ async function askAI(message) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 message: message,
+                onlyEmojis: onlyEmojis,
+                lastLanguage: lastLanguage,
                 type: 'groq' 
             })
         });
