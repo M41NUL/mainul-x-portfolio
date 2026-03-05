@@ -5,19 +5,40 @@ const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 let messageId = 0;
 let userName = null;
 
-// ===== LANGUAGE MEMORY (NEW) =====
+// ===== LANGUAGE MEMORY =====
 let lastLanguage = localStorage.getItem('chat_lang') || 'en';
 
-// ===== EMOJI DETECTION (NEW) =====
+// ===== EMOJI DETECTION =====
 function isOnlyEmojis(text) {
     const emojiRegex = /^[\p{Emoji}\s]+$/u;
     return emojiRegex.test(text.trim());
 }
 
+// ===== LANGUAGE DETECTION with BANGLISH SUPPORT =====
 function detectLanguage(message) {
     const banglaPattern = /[\u0980-\u09FF]/;
-    if (banglaPattern.test(message)) return 'bn';
-    return 'en';
+    const banglishWords = [
+        "ami", "tumi", "apni", "kemon", "bhalo", "kisu", "keno", 
+        "ki", "valo", "acha", "ase", "ache", "hobe", "korte", 
+        "chai", "bolo", "dite", "paro", "jao", "a6o", "k6o",
+        "acche", "vlo", "kmn", "kn", "kno", "tmi", "apnar"
+    ];
+
+    // Check for Bangla Unicode
+    if (banglaPattern.test(message)) {
+        return "bn";
+    }
+
+    const text = message.toLowerCase();
+
+    // Check for Banglish words
+    for (let word of banglishWords) {
+        if (text.includes(word)) {
+            return "bn";
+        }
+    }
+
+    return "en";
 }
 
 // ===== USER NAME DETECTION =====
@@ -38,16 +59,6 @@ function detectUserName(message) {
     return null;
 }
 
-// ===== TIME-BASED GREETING =====
-function getTimeGreeting() {
-    const hour = new Date().getHours();
-    
-    if (hour >= 5 && hour < 12) return "Good morning";
-    if (hour >= 12 && hour < 17) return "Good afternoon";
-    if (hour >= 17 && hour < 20) return "Good evening";
-    return "Good night";
-}
-
 // ===== MAIN CHATBOT FUNCTION =====
 async function processMessage(message) {
     if (!message || message.trim() === "") {
@@ -60,19 +71,7 @@ async function processMessage(message) {
     const nameReply = detectUserName(message);
     if (nameReply) return nameReply;
 
-    // Check for time greeting
-    if (text.includes("good morning") || text.includes("good afternoon") || 
-        text.includes("good evening") || text.includes("good night") ||
-        text.includes("সুপ্রভাত") || text.includes("শুভ সকাল")) {
-        return `${getTimeGreeting()}! ${userName ? userName + ', ' : ''}How can I assist you today?`;
-    }
-
     // ===== QUICK REPLIES =====
-
-    // Greeting
-    if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
-        return `${getTimeGreeting()}! How can I assist you today?`;
-    }
 
     // Payment
     if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
@@ -97,6 +96,11 @@ async function processMessage(message) {
     // About
     if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
         return "Md. Mainul Islam (MAINUL-X)\n\nCyber Security Specialist\nDigital Marketing Expert\nTermux Tools Developer\n50+ GitHub Projects\nFounder of SOCINEST-X";
+    }
+
+    // General greeting
+    if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
+        return "Hello! How can I assist you today?";
     }
 
     // Default → AI
