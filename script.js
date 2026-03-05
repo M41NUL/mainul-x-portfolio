@@ -120,7 +120,6 @@ function loadPosts() {
     });
 }
 
-
 // ========== DOM Content Loaded ==========
 document.addEventListener('DOMContentLoaded', function() {
     loadProjects();
@@ -132,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTabScroll();
     setupSettingsDropdown();
     setupFileInput();
-
+    setupReportForm(); 
 });
 
 // ========== Load Projects ==========
@@ -372,6 +371,55 @@ function setupFileInput() {
             }
         });
     }
+}
+
+// ========== Report Form Submit - NEW FUNCTION ==========
+function setupReportForm() {
+    const form = document.getElementById('reportForm');
+    const messageDiv = document.getElementById('reportMessage');
+    
+    if (!form || !messageDiv) return;
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+        
+        // Show sending message
+        messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        messageDiv.className = 'report-message sending';
+        
+        try {
+            const res = await fetch('https://mainul-x-portfolio.vercel.app/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: `Name: ${name}\nEmail: ${email}\nMessage: ${message}` 
+                })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Report Send Successful.';
+                messageDiv.className = 'report-message success';
+                form.reset();
+                
+                // Reset file name display
+                const fileNameSpan = document.querySelector('.file-name');
+                if (fileNameSpan) fileNameSpan.textContent = 'No file chosen';
+                
+            } else {
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + (data.error || 'Unknown error');
+                messageDiv.className = 'report-message error';
+            }
+        } catch (err) {
+            messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + err.message;
+            messageDiv.className = 'report-message error';
+        }
+    });
 }
 
 // ========== Home Icon Click ==========
