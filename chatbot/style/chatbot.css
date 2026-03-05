@@ -4,7 +4,7 @@ Author: Md. Mainul Islam
 GitHub: https://github.com/M41NUL
 */
 
-/* ===== Main Container ===== */
+/* Main Container */
 .chatbot-container {
     position: fixed;
     bottom: 100px;
@@ -21,11 +21,9 @@ GitHub: https://github.com/M41NUL
     border: 1px solid var(--border);
 }
 
-.chatbot-container.open {
-    display: flex;
-}
+.chatbot-container.open { display: flex; }
 
-/* ===== Header ===== */
+/* Header */
 .chatbot-header {
     background: linear-gradient(135deg, #2563eb, #7c3aed);
     padding: 8px 12px;
@@ -41,14 +39,8 @@ GitHub: https://github.com/M41NUL
     gap: 6px;
 }
 
-.header-left i {
-    font-size: 16px;
-}
-
-.header-left h3 {
-    font-size: 13px;
-    margin: 0;
-}
+.header-left i { font-size: 16px; }
+.header-left h3 { font-size: 13px; margin: 0; }
 
 .bot-status {
     font-size: 10px;
@@ -76,7 +68,7 @@ GitHub: https://github.com/M41NUL
     justify-content: center;
 }
 
-/* ===== Messages Area ===== */
+/* Messages Area */
 .chatbot-messages {
     flex: 1;
     padding: 12px;
@@ -87,7 +79,7 @@ GitHub: https://github.com/M41NUL
     gap: 8px;
 }
 
-/* ===== Message Container ===== */
+/* Message Container */
 .message {
     display: flex;
     align-items: flex-start;
@@ -95,15 +87,10 @@ GitHub: https://github.com/M41NUL
     max-width: 100%;
 }
 
-.message.user {
-    flex-direction: row-reverse;
-}
+.message.user { flex-direction: row-reverse; }
+.message.bot { flex-direction: row; }
 
-.message.bot {
-    flex-direction: row;
-}
-
-/* ===== Avatar Icons ===== */
+/* Avatar */
 .message-avatar {
     width: 24px;
     height: 24px;
@@ -126,22 +113,17 @@ GitHub: https://github.com/M41NUL
     color: var(--light);
 }
 
-/* ===== Message Wrapper ===== */
+/* Message Wrapper */
 .message-wrapper {
     max-width: 80%;
     display: flex;
     flex-direction: column;
 }
 
-.message.user .message-wrapper {
-    align-items: flex-end;
-}
+.message.user .message-wrapper { align-items: flex-end; }
+.message.bot .message-wrapper { align-items: flex-start; }
 
-.message.bot .message-wrapper {
-    align-items: flex-start;
-}
-
-/* ===== Message Bubble ===== */
+/* Message Bubble */
 .message-content {
     padding: 8px 12px;
     border-radius: 14px;
@@ -162,7 +144,7 @@ GitHub: https://github.com/M41NUL
     border-bottom-right-radius: 4px;
 }
 
-/* ===== Message Footer ===== */
+/* Message Footer */
 .message-footer {
     display: flex;
     align-items: center;
@@ -170,35 +152,30 @@ GitHub: https://github.com/M41NUL
     margin-top: 2px;
 }
 
-/* ===== Read Receipt - খুব ছোট ===== */
+/* Read Receipt - Tiny */
 .read-receipt {
-    font-size: 8px !important;
+    font-size: 8px;
     color: var(--primary);
     display: flex;
     align-items: center;
     gap: 2px;
     opacity: 0.8;
-    letter-spacing: 0.3px;
 }
 
-.read-receipt i {
-    font-size: 7px !important;
-}
+.read-receipt i { font-size: 7px; }
 
-/* ===== Message Time ===== */
+/* Message Time */
 .message-time {
-    font-size: 8px !important;
+    font-size: 8px;
     color: var(--gray);
     display: flex;
     align-items: center;
     gap: 3px;
 }
 
-.message-time i {
-    font-size: 7px !important;
-}
+.message-time i { font-size: 7px; }
 
-/* ===== Typing Indicator ===== */
+/* Typing Indicator */
 .typing-indicator {
     display: flex;
     gap: 3px;
@@ -224,7 +201,7 @@ GitHub: https://github.com/M41NUL
     50% { transform: translateY(-3px); }
 }
 
-/* ===== Quick Questions ===== */
+/* Quick Questions */
 .quick-questions {
     padding: 10px;
     background: var(--card-bg);
@@ -239,18 +216,17 @@ GitHub: https://github.com/M41NUL
     background: var(--darker);
     border: 1px solid var(--border);
     color: var(--light);
-    padding: 4px 8px !important;
-    border-radius: 14px !important;
-    font-size: 9px !important;
+    padding: 4px 8px;
+    border-radius: 14px;
+    font-size: 9px;
     cursor: pointer;
-    white-space: nowrap;
     display: flex;
     align-items: center;
     gap: 3px;
 }
 
 .quick-btn i {
-    font-size: 10px !important;
+    font-size: 10px;
     color: var(--primary);
 }
 
@@ -259,48 +235,45 @@ GitHub: https://github.com/M41NUL
     border-color: transparent;
 }
 
-.quick-btn:hover i {
-    color: white;
-}
+.quick-btn:hover i { color: white; }
 
-/* ===== Input Area ===== */
+/* Input Area - Fixed Height */
 .chatbot-input {
-    padding: 8px 10px;
+    padding: 10px 12px;
     background: var(--card-bg);
     border-top: 1px solid var(--border);
     display: flex;
-    gap: 5px;
+    gap: 6px;
     align-items: center;
-    height: 50px;
+    height: 60px;
 }
 
-/* ===== All Buttons - Same Small Size ===== */
+/* All Buttons - Uniform */
 .chatbot-input button,
 .upload-btn,
 .voice-btn,
 #sendMessage {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px;
-    min-height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
     padding: 0;
     border: none;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-/* ===== Upload Button ===== */
+/* Upload Button */
 .upload-btn {
     background: var(--card-bg);
     border: 1px solid var(--border);
     color: var(--light);
 }
 
-/* ===== Voice Button ===== */
+/* Voice Button */
 .voice-btn {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -313,33 +286,33 @@ GitHub: https://github.com/M41NUL
     animation: pulse 1s infinite;
 }
 
-/* ===== Send Button ===== */
+/* Send Button */
 #sendMessage {
     background: var(--gradient);
     color: white;
 }
 
-/* ===== Input Field ===== */
+/* Input Field */
 .chatbot-input input {
     flex: 1;
-    height: 32px;
-    padding: 0 10px;
+    height: 36px;
+    padding: 0 12px;
     background: var(--darker);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 18px;
     color: var(--light);
-    font-size: 12px;
+    font-size: 13px;
     outline: none;
 }
 
-/* ===== Hover Effects ===== */
+/* Hover Effects */
 .chatbot-input button:hover,
 .upload-btn:hover,
 .voice-btn:hover {
     transform: scale(1.05);
 }
 
-/* ===== Toggle Button ===== */
+/* Toggle Button */
 .chatbot-toggle {
     position: fixed;
     bottom: 20px;
@@ -358,7 +331,7 @@ GitHub: https://github.com/M41NUL
     z-index: 9998;
 }
 
-/* ===== Image Messages ===== */
+/* Image Messages */
 .message-content img {
     max-width: 150px;
     max-height: 150px;
@@ -366,13 +339,13 @@ GitHub: https://github.com/M41NUL
     border: 2px solid var(--primary);
 }
 
-/* ===== Animations ===== */
+/* Animations */
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
 }
 
-/* ===== Responsive ===== */
+/* Responsive */
 @media (max-width: 480px) {
     .chatbot-container {
         width: 280px;
@@ -385,14 +358,14 @@ GitHub: https://github.com/M41NUL
     .upload-btn,
     .voice-btn,
     #sendMessage {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
     }
     
     .chatbot-input input {
-        height: 30px;
-        font-size: 11px;
+        height: 32px;
+        font-size: 12px;
     }
     
     .message-content {
@@ -405,4 +378,4 @@ GitHub: https://github.com/M41NUL
         height: 22px;
         font-size: 10px;
     }
-    }
+}
