@@ -1,4 +1,4 @@
-// MAINUL-X Chatbot - Complete with Memory
+// MAINUL-X Chatbot - Complete with Memory & API Sync
 // Author: Md. Mainul Islam
 
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
@@ -93,22 +93,17 @@ async function processMessage(message) {
     return await askAI(message);
 }
 
-// ===== AI REQUEST with MEMORY =====
+// ===== AI REQUEST with MEMORY (FIXED) =====
 async function askAI(message) {
     try {
-        const onlyEmojis = isOnlyEmojis(message);
-        const currentLang = detectLanguage(message);
+        // Don't push to history before API call!
 
-        // Add user message to history
-        chatHistory.push({ role: 'user', text: message });
-
-        // Call API with history
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 message: message,
-                history: chatHistory.slice(-10), // Last 10 messages
+                history: chatHistory.slice(-10), // Send last 10 messages
                 type: 'gemini' 
             })
         });
@@ -118,10 +113,14 @@ async function askAI(message) {
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
             const reply = data.candidates[0].content.parts[0].text;
             
-            // Add AI reply to history
+            // Add BOTH messages to history AFTER successful response
+            chatHistory.push({ role: 'user', text: message });
             chatHistory.push({ role: 'ai', text: reply });
             
-            if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+            // Keep history manageable
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(-20);
+            }
             
             return reply;
         }
@@ -144,7 +143,6 @@ function addMessage(text, sender = "bot") {
     messageDiv.className = `message ${sender}`;
     messageDiv.dataset.id = msgId;
 
-    // Avatar
     const avatar = document.createElement("div");
     avatar.className = "message-avatar";
     avatar.innerHTML = sender === "bot" ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
