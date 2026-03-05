@@ -45,10 +45,13 @@ async function handleGemini(message, res) {
   }
 
   try {
+    // Add user message to history
     conversationHistory.push({
       role: "user",
       parts: [{ text: message }]
     });
+
+    console.log("Sending to Gemini with history length:", conversationHistory.length);
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
@@ -57,18 +60,9 @@ async function handleGemini(message, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: conversationHistory,
-          systemInstruction: {
-            parts: [{
-              text: `You are MAINUL-X AI HELPER.
-
-Rules:
-- Detect language automatically.
-- Bangla message → reply in Bangla
-- English message → reply in English
-- Remember previous conversation context.
-- Be friendly and short.
-- You represent developer Md. Mainul Islam.`
-            }]
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800
           }
         })
       }
@@ -76,13 +70,31 @@ Rules:
 
     const data = await response.json();
     
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't respond.";
+    // Debug log
+    console.log("Gemini response status:", response.status);
+    if (response.status !== 200) {
+      console.log("Error response:", data);
+    }
 
+    // Safer response parsing
+    let reply = "Sorry, I couldn't respond.";
+    
+    if (data && 
+        data.candidates && 
+        data.candidates.length > 0 && 
+        data.candidates[0].content && 
+        data.candidates[0].content.parts && 
+        data.candidates[0].content.parts.length > 0) {
+      reply = data.candidates[0].content.parts[0].text;
+    }
+
+    // Add AI reply to history
     conversationHistory.push({
       role: "model",
       parts: [{ text: reply }]
     });
 
+    // Keep last 20 messages
     if (conversationHistory.length > 20) {
       conversationHistory = conversationHistory.slice(-20);
     }
@@ -122,7 +134,7 @@ async function handleGroq(message, res) {
           messages: [
             {
               role: 'system',
-              content: 'You are MAINUL-X Helper, an AI assistant for Md. Mainul Islam\'s portfolio.'
+              content: 'You are MAINUL-X Helper, an AI assistant for Md. Mainul Islam\'s portfolio. Answer helpfully and concisely.'
             },
             {
               role: 'user',
@@ -137,12 +149,12 @@ async function handleGroq(message, res) {
 
     const data = await response.json();
     
+    const reply = data.choices?.[0]?.message?.content || "No response from Groq";
+
     return res.status(200).json({
       candidates: [{
         content: {
-          parts: [{
-            text: data.choices?.[0]?.message?.content || "No response from Groq"
-          }]
+          parts: [{ text: reply }]
         }
       }]
     });
