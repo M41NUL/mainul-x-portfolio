@@ -56,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTabScroll();
     setupSettingsDropdown();
     setupFileInput();
-    setupChatbot();
-    setupChatFunctions(); // New function added
+
 });
 
 // ========== Load Projects ==========
@@ -297,130 +296,6 @@ function setupFileInput() {
             }
         });
     }
-}
-
-// ========== Chatbot Toggle Function ==========
-function setupChatbot() {
-    const toggle = document.getElementById('chatbotToggle');
-    const container = document.getElementById('chatbotContainer');
-    const closeBtn = document.getElementById('closeChat');
-    
-    if (!toggle || !container) {
-        console.error('Chatbot elements not found!');
-        return;
-    }
-    
-    console.log('✅ Chatbot initialized');
-    
-    toggle.addEventListener('click', function() {
-        console.log('Chatbot clicked');
-        container.classList.toggle('open');
-        
-        // Show welcome message if first time
-        const chatMessages = document.getElementById('chatMessages');
-        if (chatMessages && chatMessages.children.length === 0) {
-            showWelcomeMessage();
-        }
-    });
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function() {
-            container.classList.remove('open');
-        });
-    }
-    
-    document.addEventListener('click', function(e) {
-        if (container.classList.contains('open') && 
-            !container.contains(e.target) && 
-            !toggle.contains(e.target)) {
-            container.classList.remove('open');
-        }
-    });
-}
-
-// ========== Chat Functions ==========
-function setupChatFunctions() {
-    const sendBtn = document.getElementById('sendMessage');
-    const userInput = document.getElementById('userInput');
-    
-    if (sendBtn && userInput) {
-        sendBtn.addEventListener('click', sendUserMessage);
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendUserMessage();
-        });
-    }
-}
-
-function showWelcomeMessage() {
-    addMessage('bot', '👋 Hi! I\'m MAINUL-X Helper. How can I help you today?');
-}
-
-async function sendUserMessage() {
-    const input = document.getElementById('userInput');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    addMessage('user', message);
-    input.value = '';
-    
-    showTypingIndicator();
-    
-    try {
-        // Call chatbot.js processMessage function
-        if (typeof processMessage === 'function') {
-            const reply = await processMessage(message);
-            removeTypingIndicator();
-            addMessage('bot', reply);
-        } else {
-            removeTypingIndicator();
-            addMessage('bot', '⚠️ Chatbot not loaded properly.');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        removeTypingIndicator();
-        addMessage('bot', '😔 Sorry, something went wrong.');
-    }
-}
-
-function addMessage(sender, text) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = text;
-    
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'message-time';
-    timeDiv.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    messageDiv.appendChild(contentDiv);
-    messageDiv.appendChild(timeDiv);
-    chatMessages.appendChild(messageDiv);
-    
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function showTypingIndicator() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'message bot';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    
-    chatMessages.appendChild(typingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function removeTypingIndicator() {
-    const typingDiv = document.getElementById('typingIndicator');
-    if (typingDiv) typingDiv.remove();
 }
 
 // ========== Home Icon Click ==========
