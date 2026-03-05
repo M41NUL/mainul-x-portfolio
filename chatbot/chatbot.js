@@ -3,6 +3,35 @@
 
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 let messageId = 0;
+let userName = null;
+
+// ===== USER NAME DETECTION =====
+function detectUserName(message) {
+    const patterns = [
+        /(?:my name is|i am|i'm)\s+(\w+)/i,
+        /(?:আমার নাম|নাম)\s+([\u0980-\u09FF]+)/i,
+        /(?:call me)\s+(\w+)/i
+    ];
+    
+    for (let pattern of patterns) {
+        const match = message.match(pattern);
+        if (match) {
+            userName = match[1];
+            return `Nice to meet you, ${userName}! How can I help you today?`;
+        }
+    }
+    return null;
+}
+
+// ===== TIME-BASED GREETING =====
+function getTimeGreeting() {
+    const hour = new Date().getHours();
+    
+    if (hour >= 5 && hour < 12) return "Good morning";
+    if (hour >= 12 && hour < 17) return "Good afternoon";
+    if (hour >= 17 && hour < 20) return "Good evening";
+    return "Good night";
+}
 
 // ===== MAIN CHATBOT FUNCTION =====
 async function processMessage(message) {
@@ -12,37 +41,49 @@ async function processMessage(message) {
 
     const text = message.toLowerCase();
 
+    // Check for name first
+    const nameReply = detectUserName(message);
+    if (nameReply) return nameReply;
+
+    // Check for time greeting
+    if (text.includes("good morning") || text.includes("good afternoon") || 
+        text.includes("good evening") || text.includes("good night") ||
+        text.includes("সুপ্রভাত") || text.includes("শুভ সকাল")) {
+        return `${getTimeGreeting()}! ${userName ? userName + ', ' : ''}How can I assist you today?`;
+    }
+
     // ===== QUICK REPLIES =====
 
-// Greeting
-if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
-    return "Hello. How can I assist you today?";
-}
+    // Greeting
+    if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
+        return `${getTimeGreeting()}! How can I assist you today?`;
+    }
 
-// Payment
-if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
-    return "Payment Options\n\nNagad: 01308850528\nbKash: 01308850528\nBRAC Bank: 1073831440001\nAccount Holder: MD. MAINUL ISLAM\n\nSecure and verified payment methods.";
-}
+    // Payment
+    if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
+        return "Payment Options\n\nNagad: 01308850528\nbKash: 01308850528\nBRAC Bank: 1073831440001\nAccount Holder: MD. MAINUL ISLAM";
+    }
 
-// GitHub
-if (text.includes("github") || text.includes("গিটহাব") || text.includes("project")) {
-    return "GitHub Profile\n\nhttps://github.com/M41NUL\n\nMore than 50 open source projects including Termux tools, automation scripts, and developer utilities.";
-}
+    // GitHub
+    if (text.includes("github") || text.includes("গিটহাব") || text.includes("project")) {
+        return "GitHub Profile\n\nhttps://github.com/M41NUL\n\n50+ open source projects including Termux tools, automation scripts, and developer utilities.";
+    }
 
-// Contact
-if (text.includes("contact") || text.includes("যোগাযোগ")) {
-    return "Contact Information\n\nEmail: githubmainul@gmail.com\nWhatsApp: 01308850528\nTelegram: @mdmainulislaminfo\n\nYou will usually receive a response within a few hours.";
-}
+    // Contact
+    if (text.includes("contact") || text.includes("যোগাযোগ")) {
+        return "Contact Information\n\nEmail: githubmainul@gmail.com\nWhatsApp: 01308850528\nTelegram: @mdmainulislaminfo\n\nYou will usually receive a response within a few hours.";
+    }
 
-// Services
-if (text.includes("service") || text.includes("সার্ভিস")) {
-    return "Available Services\n\nCyber Security\nDigital Marketing\nProgramming and Automation\nTermux Tools Development\nSocial Media Growth\nSOCINEST-X Agency";
-}
+    // Services
+    if (text.includes("service") || text.includes("সার্ভিস")) {
+        return "Available Services\n\nCyber Security\nDigital Marketing\nProgramming & Automation\nTermux Tools Development\nSocial Media Growth\nSOCINEST-X Agency";
+    }
 
-// About
-if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
-    return "Md. Mainul Islam (MAINUL-X)\n\nCyber Security Specialist\nDigital Marketing Expert\nProgrammer and Automation Developer\nTermux Tools Creator\nMore than 50 open source projects on GitHub\nFounder of SOCINEST-X";
-}
+    // About
+    if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
+        return "Md. Mainul Islam (MAINUL-X)\n\nCyber Security Specialist\nDigital Marketing Expert\nTermux Tools Developer\n50+ GitHub Projects\nFounder of SOCINEST-X";
+    }
+
     // Default → AI
     return await askAI(message);
 }
@@ -246,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
             chatbox.classList.toggle("open");
             
             if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
-                addMessage("🤖 Welcome to MAINUL-X AI Assistant.How can I assist you today?", "bot");
+                addMessage("Welcome to MAINUL-X AI Assistant. How can I assist you today?", "bot");
             }
         });
     }
