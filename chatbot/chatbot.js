@@ -4,7 +4,6 @@
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 
 let messageId = 0;
-let reactions = {};
 
 // ===== MAIN CHATBOT FUNCTION =====
 async function processMessage(message) {
@@ -69,7 +68,7 @@ async function askAI(message) {
     }
 }
 
-// ===== ADD MESSAGE WITH AVATAR, TIME, REACTIONS =====
+// ===== ADD MESSAGE WITH AVATAR, TIME, COPY =====
 function addMessage(text, sender = "bot") {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -88,10 +87,13 @@ function addMessage(text, sender = "bot") {
     const wrapper = document.createElement("div");
     wrapper.className = "message-wrapper";
 
-    // Message content
+    // Message content (copyable)
     const content = document.createElement("div");
     content.className = "message-content";
     content.innerHTML = formatMessage(text);
+    
+    // Make copyable
+    makeCopyable(content, text);
 
     // Message footer
     const footer = document.createElement("div");
@@ -114,22 +116,6 @@ function addMessage(text, sender = "bot") {
     footer.appendChild(time);
     wrapper.appendChild(content);
     wrapper.appendChild(footer);
-
-    // Reactions
-    const reactionsDiv = document.createElement("div");
-    reactionsDiv.className = "message-reactions";
-    reactionsDiv.id = `reactions-${msgId}`;
-    
-    const emojis = ['👍', '❤️', '😂', '😮'];
-    emojis.forEach(emoji => {
-        const btn = document.createElement("span");
-        btn.className = "reaction-btn";
-        btn.innerHTML = emoji;
-        btn.onclick = () => addReaction(msgId, emoji);
-        reactionsDiv.appendChild(btn);
-    });
-
-    wrapper.appendChild(reactionsDiv);
 
     // Assemble message
     if (sender === "bot") {
@@ -156,27 +142,6 @@ function markAsRead(msgId) {
         const receipt = msg.querySelector('.read-receipt');
         if (receipt) {
             receipt.innerHTML = '<i class="fas fa-check-double" style="color: var(--primary)"></i> Read';
-        }
-    }
-}
-
-// ===== ADD REACTION =====
-function addReaction(msgId, emoji) {
-    if (!reactions[msgId]) reactions[msgId] = {};
-    reactions[msgId][emoji] = (reactions[msgId][emoji] || 0) + 1;
-    
-    const container = document.getElementById(`reactions-${msgId}`);
-    if (container) {
-        // Show reaction count
-        const existing = container.querySelector(`[data-emoji="${emoji}"]`);
-        if (existing) {
-            existing.innerHTML = `${emoji} ${reactions[msgId][emoji]}`;
-        } else {
-            const btn = document.createElement("span");
-            btn.className = "reaction-btn";
-            btn.setAttribute('data-emoji', emoji);
-            btn.innerHTML = `${emoji} ${reactions[msgId][emoji]}`;
-            container.appendChild(btn);
         }
     }
 }
@@ -256,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.addEventListener("click", () => {
             chatbox.classList.toggle("open");
             
-            if (chatbox.classList.contains("open") && !chatbox.hasChildNodes()) {
+            if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
                 addMessage("👋 Hi! I'm MAINUL-X Helper. How can I help you today?", "bot");
             }
         });
@@ -279,9 +244,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// ===== COPY TEXT ON LONG PRESS =====
+function makeCopyable(element, text) {
+    let pressTimer;
+    
+    // For mobile: touch and hold
+    element.addEventListener('touchstart', (e) => {
+        pressTimer = setTimeout(() => {
+            copyText(text, element);
+        }, 500);
+    });
+    
+    element.addEventListener('touchend', () => {
+        clearTimeout(pressTimer);
+    });
+    
+    element.addEventListener('touchcancel', () => {
+        clearTimeout(pressTimer);
+    });
+    
+    // For desktop
+    element.addEventListener('mousedown', (e) => {
+        if (e.button === 2) return;
+        pressTimer = setTimeout(() => {
+            copyText(text, element);
+        }, 500);
+    });
+    
+    element.addEventListener('mouseup', () => {
+        clearTimeout(pressTimer);
+    });
+    
+    element.addEventListener('mouseleave', () => {
+        clearTimeout(pressTimer);
+    });
+}
+
+// ===== COPY FUNCTION =====
+async function copyText(text, element) {
+    try {
+        await navigator.clipboard.writeText(text);
+        
+        element.classList.add('copied');
+        setTimeout(() => {
+            element.classList.remove('copied');
+        }, 2000);
+        
+    } catch (err) {
+        console.error('Copy failed:', err);
+        
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        element.classList.add('copied');
+        setTimeout(() => {
+            element.classList.remove('copied');
+        }, 2000);
+    }
+}
+
 // ===== EXPORTS =====
 window.processMessage = processMessage;
 window.sendMessage = sendMessage;
-window.addReaction = addReaction;
 
-console.log("✅ MAINUL-X chatbot loaded with all features");
+console.log("✅ MAINUL-X chatbot loaded (reactions removed)");
