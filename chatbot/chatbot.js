@@ -78,11 +78,11 @@ async function askAI(message) {
             return groqData.candidates[0].content.parts[0].text;
         }
 
-        return "⚠️ AI returned empty response.";
+        return "AI returned empty response.";
 
     } catch (error) {
         console.error('AI Error:', error);
-        return "😔 AI connection error. Please try again.";
+        return "AI connection error. Please try again.";
     }
 }
 
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
             chatbox.classList.toggle("open");
             
             if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
-                addMessage("👋 Hi! I'm MAINUL-X Helper. How can I help you today?", "bot");
+                addMessage("🤖 Welcome to MAINUL-X AI Assistant.How can I assist you today?", "bot");
             }
         });
     }
@@ -307,4 +307,4 @@ async function copyText(text, element) {
 window.processMessage = processMessage;
 window.sendMessage = sendMessage;
 
-console.log("✅ MAINUL-X chatbot loaded with Gemini & Groq");
+console.log("MAINUL-X chatbot loaded with Gemini & Groq");
