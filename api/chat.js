@@ -1,16 +1,14 @@
-// api/chat.js - Vercel Serverless Function for Gemini & Groq ONLY
+// api/chat.js - Vercel Serverless Function with Memory Context
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -22,7 +20,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Route to appropriate AI handler
     if (type === 'groq') {
       return await handleGroq(message, res);
     } else {
@@ -35,7 +32,10 @@ export default async function handler(req, res) {
   }
 }
 
-// Gemini AI Handler
+// Store conversation in memory (last 10 messages)
+let conversationMemory = [];
+
+// Gemini Handler with Memory
 async function handleGemini(message, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
   
@@ -44,6 +44,21 @@ async function handleGemini(message, res) {
   }
 
   try {
+    // Add user message to memory
+    conversationMemory.push({ role: "user", content: message });
+    
+    // Keep only last 10 messages
+    if (conversationMemory.length > 10) {
+      conversationMemory.shift();
+    }
+    
+    // Build conversation context
+    let context = "";
+    for (let i = 0; i < conversationMemory.length; i++) {
+      const msg = conversationMemory[i];
+      context += `${msg.role}: ${msg.content}\n`;
+    }
+    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
@@ -51,21 +66,47 @@ async function handleGemini(message, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{
-            parts: [{ text: message }]
-          }]
+            parts: [{ 
+              text: `Previous conversation:\n${context}\n\nUser: ${message}\nAssistant:` 
+            }]
+          }],
+          systemInstruction: {
+            parts: [{
+              text: `You are MAINUL-X AI HELPER.
+Remember the previous conversation and answer naturally.
+Be friendly, short and helpful.
+You represent developer Md. Mainul Islam.`
+            }]
+          }
         })
       }
     );
 
     const data = await response.json();
+    
+    if (!data.candidates || data.candidates.length === 0) {
+      return res.status(200).json({ candidates: [{ content: { parts: [{ text: "I couldn't process that. Please try again." }] } }] });
+    }
+    
+    const reply = data.candidates[0].content.parts[0].text;
+    
+    // Save bot reply to memory
+    conversationMemory.push({ role: "assistant", content: reply });
+    
+    // Keep only last 10 messages
+    if (conversationMemory.length > 10) {
+      conversationMemory.shift();
+    }
+    
     return res.status(200).json(data);
     
   } catch (error) {
+    console.error('Gemini Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-// Groq AI Handler (Llama/Mixtral)
+// Groq Handler
 async function handleGroq(message, res) {
   const API_KEY = process.env.GROQ_API_KEY;
   
@@ -102,7 +143,18 @@ async function handleGroq(message, res) {
 
     const data = await response.json();
     
-    // Transform Groq response to match Gemini format
+    if (!data.choices || data.choices.length === 0) {
+      return res.status(200).json({
+        candidates: [{
+          content: {
+            parts: [{
+              text: "I couldn't process that. Please try again."
+            }]
+          }
+        }]
+      });
+    }
+    
     return res.status(200).json({
       candidates: [{
         content: {
@@ -114,6 +166,7 @@ async function handleGroq(message, res) {
     });
     
   } catch (error) {
+    console.error('Groq Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
