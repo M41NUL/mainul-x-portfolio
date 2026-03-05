@@ -125,6 +125,7 @@ function loadPosts() {
 document.addEventListener('DOMContentLoaded', function() {
     loadProjects();
     loadContactGrid();
+    loadPosts();
     setupTypingEffect();
     setupTestimonialSlider();
     setupCopyFeature();
