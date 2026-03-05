@@ -1,5 +1,7 @@
 // api/report.js - Terminal Theme Version
 // Developer: Md. Mainul Islam
+// GitHub: M41NUL
+// Contact: +8801308850528
 
 import nodemailer from 'nodemailer';
 
@@ -12,19 +14,16 @@ export default async function handler(req, res) {
 
   try {
     const { message } = req.body;
-    
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
+    if (!message) return res.status(400).json({ error: 'Message is required' });
 
-    // Parse message from form
+    // Parse message
     const lines = message.split('\n');
     const name = lines.find(l => l.includes('Name:'))?.replace('Name:', '').trim() || 'Unknown';
     const email = lines.find(l => l.includes('Email:'))?.replace('Email:', '').trim() || 'Unknown';
     const msg = lines.find(l => l.includes('Message:'))?.replace('Message:', '').trim() || message;
     const time = new Date().toLocaleString();
 
-    // Terminal Theme HTML Template (Your chosen design)
+    // Terminal Theme HTML
     const htmlTemplate = `
       <div style="max-width:600px; margin:0 auto; background:#1e1e1e; border-radius:15px; overflow:hidden; font-family:'Courier New',monospace;">
         <div style="background:#2d2d2d; padding:15px; display:flex; align-items:center; gap:10px;">
@@ -66,27 +65,14 @@ export default async function handler(req, res) {
     `;
 
     // Plain text version
-    const textVersion = `
-MAINUL-X REPORT
-━━━━━━━━━━━━━━━━━━━━━━
-USERNAME: ${name}
-EMAIL: ${email}
-MESSAGE: ${msg}
-TIME: ${time}
-PRIORITY: NORMAL
-━━━━━━━━━━━━━━━━━━━━━━
-    `;
-
-    // Gmail setup
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-      }
-    });
+    const textVersion = `MAINUL-X REPORT\n━━━━━━━━━━━━━━━━━━━━━━\nUSERNAME: ${name}\nEMAIL: ${email}\nMESSAGE: ${msg}\nTIME: ${time}\nPRIORITY: NORMAL\n━━━━━━━━━━━━━━━━━━━━━━`;
 
     // Send email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS }
+    });
+
     await transporter.sendMail({
       from: `"MAINUL-X Reports" <${process.env.GMAIL_USER}>`,
       to: 'githubmainul@gmail.com',
@@ -98,7 +84,6 @@ PRIORITY: NORMAL
     return res.status(200).json({ ok: true });
 
   } catch (error) {
-    console.error('Email Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
