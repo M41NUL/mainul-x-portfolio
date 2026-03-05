@@ -1,8 +1,7 @@
-// MAINUL-X Chatbot - Complete
+// MAINUL-X Chatbot - Complete with Gemini & Groq
 // Author: Md. Mainul Islam
 
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
-
 let messageId = 0;
 
 // ===== MAIN CHATBOT FUNCTION =====
@@ -42,9 +41,10 @@ async function processMessage(message) {
     return await askAI(message);
 }
 
-// ===== AI REQUEST =====
+// ===== AI REQUEST (Auto switch between Gemini & Groq) =====
 async function askAI(message) {
     try {
+        // First try Gemini
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -56,15 +56,33 @@ async function askAI(message) {
 
         const data = await response.json();
 
+        // Check Gemini response
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
             return data.candidates[0].content.parts[0].text;
+        }
+
+        // If Gemini fails, try Groq
+        console.log('Gemini failed, trying Groq...');
+        const groqResponse = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: message,
+                type: 'groq' 
+            })
+        });
+
+        const groqData = await groqResponse.json();
+
+        if (groqData.candidates && groqData.candidates[0]?.content?.parts?.[0]?.text) {
+            return groqData.candidates[0].content.parts[0].text;
         }
 
         return "⚠️ AI returned empty response.";
 
     } catch (error) {
         console.error('AI Error:', error);
-        return "😔 AI connection error.";
+        return "😔 AI connection error. Please try again.";
     }
 }
 
@@ -249,50 +267,30 @@ function makeCopyable(element, text) {
     let pressTimer;
     
     // For mobile: touch and hold
-    element.addEventListener('touchstart', (e) => {
-        pressTimer = setTimeout(() => {
-            copyText(text, element);
-        }, 500);
+    element.addEventListener('touchstart', () => {
+        pressTimer = setTimeout(() => copyText(text, element), 500);
     });
     
-    element.addEventListener('touchend', () => {
-        clearTimeout(pressTimer);
-    });
-    
-    element.addEventListener('touchcancel', () => {
-        clearTimeout(pressTimer);
-    });
+    element.addEventListener('touchend', () => clearTimeout(pressTimer));
+    element.addEventListener('touchcancel', () => clearTimeout(pressTimer));
     
     // For desktop
     element.addEventListener('mousedown', (e) => {
         if (e.button === 2) return;
-        pressTimer = setTimeout(() => {
-            copyText(text, element);
-        }, 500);
+        pressTimer = setTimeout(() => copyText(text, element), 500);
     });
     
-    element.addEventListener('mouseup', () => {
-        clearTimeout(pressTimer);
-    });
-    
-    element.addEventListener('mouseleave', () => {
-        clearTimeout(pressTimer);
-    });
+    element.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    element.addEventListener('mouseleave', () => clearTimeout(pressTimer));
 }
 
 // ===== COPY FUNCTION =====
 async function copyText(text, element) {
     try {
         await navigator.clipboard.writeText(text);
-        
         element.classList.add('copied');
-        setTimeout(() => {
-            element.classList.remove('copied');
-        }, 2000);
-        
-    } catch (err) {
-        console.error('Copy failed:', err);
-        
+        setTimeout(() => element.classList.remove('copied'), 2000);
+    } catch {
         // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -300,11 +298,8 @@ async function copyText(text, element) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        
         element.classList.add('copied');
-        setTimeout(() => {
-            element.classList.remove('copied');
-        }, 2000);
+        setTimeout(() => element.classList.remove('copied'), 2000);
     }
 }
 
@@ -312,4 +307,4 @@ async function copyText(text, element) {
 window.processMessage = processMessage;
 window.sendMessage = sendMessage;
 
-console.log("✅ MAINUL-X chatbot loaded (reactions removed)");
+console.log("✅ MAINUL-X chatbot loaded with Gemini & Groq");
