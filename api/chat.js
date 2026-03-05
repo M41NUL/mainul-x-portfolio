@@ -16,32 +16,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, onlyEmojis = false, lastLanguage = 'en', type = 'gemini' } = req.body;
+    const { message, history = [], type = 'gemini' } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Create prompt based on message type
-    let prompt = message;
-    
-    if (onlyEmojis) {
-      prompt = `The user sent only these emojis: "${message}". 
-Understand the emotion and reply naturally in ${lastLanguage} language.
-Examples:
-🙂 → friendly reply
-😂 → laugh with the user
-😢 → comfort the user
-🔥 → excitement
-🐸 → funny playful reply
-
-Reply in ${lastLanguage} language.`;
-    }
-
     if (type === 'groq') {
-      return await handleGroq(prompt, lastLanguage, res);
+      return await handleGroq(message, history, res);
     } else {
-      return await handleGemini(prompt, lastLanguage, res);
+      return await handleGemini(message, history, res);
     }
 
   } catch (error) {
@@ -50,13 +34,22 @@ Reply in ${lastLanguage} language.`;
   }
 }
 
-// Gemini Handler
-async function handleGemini(prompt, lastLanguage, res) {
+async function handleGemini(message, history, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
 
   if (!API_KEY) {
     return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
   }
+
+  const formattedHistory = history.map(msg => ({
+    role: msg.role === 'ai' ? 'model' : 'user',
+    parts: [{ text: msg.text }]
+  }));
+
+  formattedHistory.push({
+    role: 'user',
+    parts: [{ text: message }]
+  });
 
   try {
     const response = await fetch(
@@ -65,23 +58,26 @@ async function handleGemini(prompt, lastLanguage, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
           systemInstruction: {
             parts: [{
               text: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
 
-Rules:
-- Detect user's language automatically.
+RULES:
+- Detect language automatically (Bangla, Banglish, English)
 - Bangla/Banglish message → reply in Bangla
 - English message → reply in English
-- If user sends emojis, understand the emotion and reply naturally.
-- Be friendly, short and helpful.`
+- If user sends only emojis, understand emotion and reply naturally
+- Be friendly, short and helpful
+
+Examples:
+🙂 → friendly reply
+😂 → laugh with user
+😢 → comfort
+🔥 → excitement
+🐸 → playful reply`
             }]
           },
+          contents: formattedHistory,
           generationConfig: {
             temperature: 0.8,
             maxOutputTokens: 800
@@ -91,31 +87,38 @@ Rules:
     );
 
     const data = await response.json();
-    
-    let reply = "Sorry, I couldn't respond.";
-    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      reply = data.candidates[0].content.parts[0].text;
-    }
-
-    return res.status(200).json({
-      candidates: [{
-        content: { parts: [{ text: reply }] }
-      }]
-    });
+    return res.status(200).json(data);
 
   } catch (error) {
-    console.error('Gemini Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-// Groq Handler
-async function handleGroq(prompt, lastLanguage, res) {
+async function handleGroq(message, history, res) {
   const API_KEY = process.env.GROQ_API_KEY;
 
   if (!API_KEY) {
     return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
   }
+
+  const groqMessages = [
+    {
+      role: 'system',
+      content: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
+
+RULES:
+- Detect language automatically (Bangla, Banglish, English)
+- Bangla/Banglish message → reply in Bangla
+- English message → reply in English
+- If user sends only emojis, understand emotion and reply naturally
+- Be friendly, short and helpful`
+    },
+    ...history.map(msg => ({
+      role: msg.role === 'ai' ? 'assistant' : 'user',
+      content: msg.text
+    })),
+    { role: 'user', content: message }
+  ];
 
   try {
     const response = await fetch(
@@ -128,23 +131,7 @@ async function handleGroq(prompt, lastLanguage, res) {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: `You are MAINUL-X AI HELPER. You represent developer Md. Mainul Islam.
-
-Rules:
-- Detect user's language automatically.
-- Bangla/Banglish message → reply in Bangla
-- English message → reply in English
-- If user sends emojis, understand the emotion and reply naturally.
-- Be friendly, short and helpful.`
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
+          messages: groqMessages,
           temperature: 0.8,
           max_tokens: 800
         })
@@ -164,7 +151,6 @@ Rules:
     });
 
   } catch (error) {
-    console.error('Groq Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
