@@ -506,14 +506,20 @@
     <div class="chatbot-messages" id="chatMessages"></div>
     <div class="quick-questions" id="quickQuestions"></div>
     
-    <!-- Voice -->
     <div class="chatbot-input">
-        <button id="voiceBtn" class="voice-btn" onclick="startVoice()">
-            <i class="fas fa-microphone"></i>
-        </button>
-        <input type="text" id="userInput" placeholder="Type message...">
-        <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
-    </div>
+    <!-- File Upload Button -->
+    <label for="fileUpload" class="upload-btn">
+        <i class="fas fa-image"></i>
+    </label>
+    <input type="file" id="fileUpload" accept="image/*" style="display:none">
+    
+    <!-- Voice Button -->
+    <button id="voiceBtn" class="voice-btn" onclick="startVoice()">
+        <i class="fas fa-microphone"></i>
+    </button>
+    
+    <input type="text" id="userInput" placeholder="Type message...">
+    <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
 </div>
     
     <!-- Scripts -->
