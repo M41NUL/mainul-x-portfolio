@@ -237,50 +237,52 @@ GitHub: https://github.com/M41NUL
 
 .quick-btn:hover i { color: white; }
 
-/* Input Area - Reduced height */
+/* Input Area - Height 35px */
 .chatbot-input {
-    padding: 6px 10px;
+    padding: 3px 6px;
     background: var(--card-bg);
     border-top: 1px solid var(--border);
     display: flex;
-    gap: 5px;
+    gap: 3px;
     align-items: center;
-    height: 48px !important;
-    min-height: 48px;
+    height: 35px !important;
+    min-height: 35px;
 }
 
-/* All Buttons - Smaller size */
+/* All Buttons - Size 25px */
 .chatbot-input button,
 .upload-btn,
 .voice-btn,
 #sendMessage {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px;
-    min-height: 32px;
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px;
+    min-height: 25px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 11px;
     padding: 0;
     border: none;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-/* Input Field - Reduced height */
+/* Input Field - Height 25px */
 .chatbot-input input {
     flex: 1;
-    height: 32px;
-    padding: 0 10px;
+    height: 25px;
+    padding: 0 6px;
     background: var(--darker);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 12px;
     color: var(--light);
-    font-size: 12px;
+    font-size: 10px;
     outline: none;
 }
+
+
 /* Hover Effects */
 .chatbot-input button:hover,
 .upload-btn:hover,
