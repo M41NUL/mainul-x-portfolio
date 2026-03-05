@@ -1,44 +1,37 @@
-// MAINUL-X Chatbot - Complete with Gemini & Groq
+// MAINUL-X Chatbot - Complete with Memory
 // Author: Md. Mainul Islam
 
 const API_URL = "https://mainul-x-portfolio.vercel.app/api/chat";
 let messageId = 0;
 let userName = null;
 
-// ===== LANGUAGE MEMORY =====
-let lastLanguage = localStorage.getItem('chat_lang') || 'en';
+// ===== CHAT HISTORY (MEMORY) =====
+let chatHistory = [];
 
-// ===== EMOJI DETECTION =====
-function isOnlyEmojis(text) {
-    const emojiRegex = /^[\p{Emoji}\s]+$/u;
-    return emojiRegex.test(text.trim());
-}
-
-// ===== LANGUAGE DETECTION with BANGLISH SUPPORT =====
+// ===== LANGUAGE DETECTION with BANGLISH =====
 function detectLanguage(message) {
     const banglaPattern = /[\u0980-\u09FF]/;
     const banglishWords = [
         "ami", "tumi", "apni", "kemon", "bhalo", "kisu", "keno", 
         "ki", "valo", "acha", "ase", "ache", "hobe", "korte", 
         "chai", "bolo", "dite", "paro", "jao", "a6o", "k6o",
-        "acche", "vlo", "kmn", "kn", "kno", "tmi", "apnar"
+        "acche", "vlo", "kmn", "kn", "kno", "tmi", "apnar",
+        "amr", "tomar", "ekhon", "kothay", "kichu", "bolo"
     ];
 
-    // Check for Bangla Unicode
-    if (banglaPattern.test(message)) {
-        return "bn";
-    }
+    if (banglaPattern.test(message)) return "bn";
 
     const text = message.toLowerCase();
-
-    // Check for Banglish words
     for (let word of banglishWords) {
-        if (text.includes(word)) {
-            return "bn";
-        }
+        if (text.includes(word)) return "bn";
     }
-
     return "en";
+}
+
+// ===== EMOJI DETECTION =====
+function isOnlyEmojis(text) {
+    const emojiRegex = /^[\p{Emoji}\s]+$/u;
+    return emojiRegex.test(text.trim());
 }
 
 // ===== USER NAME DETECTION =====
@@ -72,33 +65,26 @@ async function processMessage(message) {
     if (nameReply) return nameReply;
 
     // ===== QUICK REPLIES =====
-
-    // Payment
     if (text.includes("payment") || text.includes("পেমেন্ট") || text.includes("টাকা")) {
         return "Payment Options\n\nNagad: 01308850528\nbKash: 01308850528\nBRAC Bank: 1073831440001\nAccount Holder: MD. MAINUL ISLAM";
     }
 
-    // GitHub
     if (text.includes("github") || text.includes("গিটহাব") || text.includes("project")) {
         return "GitHub Profile\n\nhttps://github.com/M41NUL\n\n50+ open source projects including Termux tools, automation scripts, and developer utilities.";
     }
 
-    // Contact
     if (text.includes("contact") || text.includes("যোগাযোগ")) {
         return "Contact Information\n\nEmail: githubmainul@gmail.com\nWhatsApp: 01308850528\nTelegram: @mdmainulislaminfo\n\nYou will usually receive a response within a few hours.";
     }
 
-    // Services
     if (text.includes("service") || text.includes("সার্ভিস")) {
         return "Available Services\n\nCyber Security\nDigital Marketing\nProgramming & Automation\nTermux Tools Development\nSocial Media Growth\nSOCINEST-X Agency";
     }
 
-    // About
     if (text.includes("about") || text.includes("সম্পর্কে") || text.includes("কে")) {
         return "Md. Mainul Islam (MAINUL-X)\n\nCyber Security Specialist\nDigital Marketing Expert\nTermux Tools Developer\n50+ GitHub Projects\nFounder of SOCINEST-X";
     }
 
-    // General greeting
     if (text.includes("hi") || text.includes("hello") || text.includes("হাই")) {
         return "Hello! How can I assist you today?";
     }
@@ -107,53 +93,37 @@ async function processMessage(message) {
     return await askAI(message);
 }
 
-// ===== AI REQUEST with LANGUAGE MEMORY =====
+// ===== AI REQUEST with MEMORY =====
 async function askAI(message) {
     try {
-        // Detect language and save
-        const currentLang = detectLanguage(message);
-        lastLanguage = currentLang;
-        localStorage.setItem('chat_lang', lastLanguage);
-
-        // Check if only emojis
         const onlyEmojis = isOnlyEmojis(message);
-        
-        // First try Gemini
+        const currentLang = detectLanguage(message);
+
+        // Add user message to history
+        chatHistory.push({ role: 'user', text: message });
+
+        // Call API with history
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 message: message,
-                onlyEmojis: onlyEmojis,
-                lastLanguage: lastLanguage,
+                history: chatHistory.slice(-10), // Last 10 messages
                 type: 'gemini' 
             })
         });
 
         const data = await response.json();
 
-        // Check Gemini response
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            return data.candidates[0].content.parts[0].text;
-        }
-
-        // If Gemini fails, try Groq
-        console.log('Gemini failed, trying Groq...');
-        const groqResponse = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                message: message,
-                onlyEmojis: onlyEmojis,
-                lastLanguage: lastLanguage,
-                type: 'groq' 
-            })
-        });
-
-        const groqData = await groqResponse.json();
-
-        if (groqData.candidates && groqData.candidates[0]?.content?.parts?.[0]?.text) {
-            return groqData.candidates[0].content.parts[0].text;
+            const reply = data.candidates[0].content.parts[0].text;
+            
+            // Add AI reply to history
+            chatHistory.push({ role: 'ai', text: reply });
+            
+            if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+            
+            return reply;
         }
 
         return "AI returned empty response.";
@@ -179,29 +149,23 @@ function addMessage(text, sender = "bot") {
     avatar.className = "message-avatar";
     avatar.innerHTML = sender === "bot" ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
 
-    // Message wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "message-wrapper";
 
-    // Message content (copyable)
     const content = document.createElement("div");
     content.className = "message-content";
     content.innerHTML = formatMessage(text);
     
-    // Make copyable
     makeCopyable(content, text);
 
-    // Message footer
     const footer = document.createElement("div");
     footer.className = "message-footer";
 
-    // Time
     const time = document.createElement("div");
     time.className = "message-time";
     const now = new Date();
     time.innerHTML = `<i class="fas fa-clock"></i> ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-    // Read receipt (for user messages)
     if (sender === "user") {
         const receipt = document.createElement("div");
         receipt.className = "read-receipt";
@@ -213,7 +177,6 @@ function addMessage(text, sender = "bot") {
     wrapper.appendChild(content);
     wrapper.appendChild(footer);
 
-    // Assemble message
     if (sender === "bot") {
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(wrapper);
@@ -225,13 +188,11 @@ function addMessage(text, sender = "bot") {
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Mark as read after 1 second
     if (sender === "bot") {
         setTimeout(() => markAsRead(msgId), 1000);
     }
 }
 
-// ===== MARK MESSAGE AS READ =====
 function markAsRead(msgId) {
     const msg = document.querySelector(`[data-id="${msgId}"]`);
     if (msg) {
@@ -242,32 +203,21 @@ function markAsRead(msgId) {
     }
 }
 
-// ===== FORMAT MESSAGE =====
 function formatMessage(text) {
     let formatted = text;
-    
-    if (typeof parseMarkdown === 'function') {
-        formatted = parseMarkdown(formatted);
-    }
-    
-    if (typeof highlightCode === 'function') {
-        formatted = highlightCode(formatted);
-    }
-    
+    if (typeof parseMarkdown === 'function') formatted = parseMarkdown(formatted);
+    if (typeof highlightCode === 'function') formatted = highlightCode(formatted);
     return formatted;
 }
 
-// ===== SEND MESSAGE =====
 async function sendMessage() {
     const input = document.getElementById("userInput");
     const message = input.value.trim();
-
     if (!message) return;
 
     addMessage(message, "user");
     input.value = "";
 
-    // Show typing indicator
     showTypingIndicator();
 
     const reply = await processMessage(message);
@@ -275,13 +225,9 @@ async function sendMessage() {
     removeTypingIndicator();
     addMessage(reply, "bot");
 
-    // Speak if enabled
-    if (window.speechEnabled) {
-        speakText(reply);
-    }
+    if (window.speechEnabled) speakText(reply);
 }
 
-// ===== TYPING INDICATOR =====
 function showTypingIndicator() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -305,7 +251,6 @@ function removeTypingIndicator() {
     document.getElementById("typingIndicator")?.remove();
 }
 
-// ===== CHAT UI CONTROL =====
 document.addEventListener("DOMContentLoaded", () => {
     const toggle = document.getElementById("chatbotToggle");
     const chatbox = document.getElementById("chatbotContainer");
@@ -316,60 +261,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (toggle) {
         toggle.addEventListener("click", () => {
             chatbox.classList.toggle("open");
-            
             if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
                 addMessage("Welcome to MAINUL-X AI Assistant. How can I assist you today?", "bot");
             }
         });
     }
 
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-            chatbox.classList.remove("open");
-        });
-    }
-
-    if (sendBtn) {
-        sendBtn.addEventListener("click", sendMessage);
-    }
-
-    if (input) {
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") sendMessage();
-        });
-    }
+    if (closeBtn) closeBtn.addEventListener("click", () => chatbox.classList.remove("open"));
+    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+    if (input) input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 });
 
-// ===== COPY TEXT ON LONG PRESS =====
 function makeCopyable(element, text) {
     let pressTimer;
-    
-    // For mobile: touch and hold
     element.addEventListener('touchstart', () => {
         pressTimer = setTimeout(() => copyText(text, element), 500);
     });
-    
     element.addEventListener('touchend', () => clearTimeout(pressTimer));
     element.addEventListener('touchcancel', () => clearTimeout(pressTimer));
-    
-    // For desktop
-    element.addEventListener('mousedown', (e) => {
-        if (e.button === 2) return;
-        pressTimer = setTimeout(() => copyText(text, element), 500);
-    });
-    
-    element.addEventListener('mouseup', () => clearTimeout(pressTimer));
-    element.addEventListener('mouseleave', () => clearTimeout(pressTimer));
 }
 
-// ===== COPY FUNCTION =====
 async function copyText(text, element) {
     try {
         await navigator.clipboard.writeText(text);
         element.classList.add('copied');
         setTimeout(() => element.classList.remove('copied'), 2000);
     } catch {
-        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -381,8 +298,7 @@ async function copyText(text, element) {
     }
 }
 
-// ===== EXPORTS =====
 window.processMessage = processMessage;
 window.sendMessage = sendMessage;
 
-console.log("MAINUL-X chatbot loaded with Gemini & Groq");
+console.log("MAINUL-X chatbot loaded with Memory & Banglish");
