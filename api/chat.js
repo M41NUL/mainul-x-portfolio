@@ -1,32 +1,34 @@
-// MAINUL-X API - Md. Mainul Islam (M41NUL)
-// GitHub: https://github.com/M41NUL
-// Portfolio: https://mainul-x-portfolio.vercel.app
-
+// api/chat.js - Vercel Serverless Function for Gemini & Groq
 export default async function handler(req, res) {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
+
+  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
+  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { message, type = 'gemini' } = req.body;
-    
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
+    // এখানে history অ্যাড করা হয়েছে মেমোরির জন্য
+    const { message, history = [], type = 'gemini' } = req.body;
 
-    if (type === 'groq') {
-      return await handleGroq(message, res);
-    } else {
-      return await handleGemini(message, res);
-    }
+    if (!message) { 
+      return res.status(400).json({ error: 'Message is required' }); 
+    } 
+    
+    // Route to appropriate AI handler 
+    if (type === 'groq') { 
+      return await handleGroq(message, history, res); 
+    } else { 
+      return await handleGemini(message, history, res); 
+    } 
 
   } catch (error) {
     console.error('API Error:', error);
@@ -34,68 +36,71 @@ export default async function handler(req, res) {
   }
 }
 
-// Gemini Handler - System prompt merged with message
-async function handleGemini(message, res) {
+// ===== Gemini AI Handler =====
+async function handleGemini(message, history, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
-  
+
   if (!API_KEY) {
     return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
   }
 
+  // মেমোরি (History) জেমিনির ফরম্যাটে সাজানো
+  const formattedHistory = history.map(msg => ({
+    role: msg.role === 'ai' ? 'model' : 'user',
+    parts: [{ text: msg.text }]
+  }));
+
+  // নতুন মেসেজ অ্যাড করা
+  formattedHistory.push({
+    role: 'user',
+    parts: [{ text: message }]
+  });
+
   try {
-    // System prompt merged with user message
-    const prompt = `You are MAINUL-X AI HELPER.
-
-Rules:
-- Detect user's language automatically.
-- If user writes in Bangla → reply in Bangla.
-- If user writes in English → reply in English.
-- If user sends emojis → reply naturally.
-- Be friendly, short and helpful.
-- You represent developer Md. Mainul Islam.
-
-User message:
-${message}`;
-
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }]
+          systemInstruction: {
+            parts: [{
+              text: "You are MAINUL-X AI HELPER.\nRules:\n- Detect user's language automatically.\n- If user writes in Bangla → reply in Bangla.\n- If user writes in English → reply in English.\n- If user sends only emojis → reply in the same language as previous message.\n- Be friendly, short and helpful.\n- You represent developer Md. Mainul Islam."
+            }]
+          },
+          contents: formattedHistory
         })
       }
     );
 
-    const data = await response.json();
-    
-    let reply = "Sorry, I couldn't respond.";
-    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      reply = data.candidates[0].content.parts[0].text;
-    }
-
-    return res.status(200).json({
-      candidates: [{
-        content: { parts: [{ text: reply }] }
-      }]
-    });
+    const data = await response.json(); 
+    return res.status(200).json(data); 
 
   } catch (error) {
-    console.error('Gemini Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-// Groq Handler
-async function handleGroq(message, res) {
+// ===== Groq AI Handler =====
+async function handleGroq(message, history, res) {
   const API_KEY = process.env.GROQ_API_KEY;
-  
+
   if (!API_KEY) {
     return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
   }
+
+  // মেমোরি (History) Groq-এর ফরম্যাটে সাজানো
+  const groqMessages = [
+    {
+      role: 'system',
+      content: "You are MAINUL-X AI HELPER. Detect user's language automatically and reply in that language. Be friendly, short and helpful. You represent developer Md. Mainul Islam."
+    },
+    ...history.map(msg => ({
+      role: msg.role === 'ai' ? 'assistant' : 'user',
+      content: msg.text
+    })),
+    { role: 'user', content: message }
+  ];
 
   try {
     const response = await fetch(
@@ -108,43 +113,20 @@ async function handleGroq(message, res) {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: `You are MAINUL-X AI HELPER.
-
-Rules:
-- Detect user's language automatically.
-- Bangla message → reply Bangla
-- English message → reply English
-- Be friendly and short.
-- You represent developer Md. Mainul Islam.`
-            },
-            {
-              role: 'user',
-              content: message
-            }
-          ],
+          messages: groqMessages,
           temperature: 0.7,
           max_tokens: 1024
         })
       }
     );
 
-    const data = await response.json();
-    
-    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond.";
-
-    return res.status(200).json({
-      candidates: [{
-        content: {
-          parts: [{ text: reply }]
-        }
-      }]
-    });
+    const data = await response.json(); 
+    // Transform Groq response to match Gemini format 
+    return res.status(200).json({ 
+      candidates: [{ content: { parts: [{ text: data.choices[0].message.content }] } }] 
+    }); 
 
   } catch (error) {
-    console.error('Groq Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
