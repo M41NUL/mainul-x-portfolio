@@ -129,7 +129,7 @@ async function askAI(message) {
     }
 }
 
-// ===== ADD MESSAGE WITH CORRECT ICON POSITION =====
+
 function addMessage(text, sender = "bot") {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -139,7 +139,7 @@ function addMessage(text, sender = "bot") {
     messageDiv.className = `message ${sender}`;
     messageDiv.dataset.id = msgId;
 
-    // Avatar তৈরি
+    // Avatar
     const avatar = document.createElement("div");
     avatar.className = "message-avatar";
     avatar.innerHTML = sender === "bot" ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
@@ -175,11 +175,13 @@ function addMessage(text, sender = "bot") {
     wrapper.appendChild(content);
     wrapper.appendChild(footer);
 
-  
+    
     if (sender === "bot") {
+        
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(wrapper);
     } else {
+        
         messageDiv.appendChild(wrapper);
         messageDiv.appendChild(avatar);
     }
@@ -204,7 +206,7 @@ function markAsRead(msgId) {
     }
 }
 
-// ===== TYPING INDICATOR - FIXED =====
+// ===== TYPING INDICATOR =====
 function showTypingIndicator() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -212,6 +214,7 @@ function showTypingIndicator() {
     const typingDiv = document.createElement("div");
     typingDiv.className = "message bot";
     typingDiv.id = "typingIndicator";
+    
     
     typingDiv.innerHTML = `
         <div class="message-avatar">
@@ -231,6 +234,7 @@ function showTypingIndicator() {
     chatMessages.appendChild(typingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
 function removeTypingIndicator() {
     document.getElementById("typingIndicator")?.remove();
 }
