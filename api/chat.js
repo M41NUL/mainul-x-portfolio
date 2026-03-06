@@ -142,8 +142,11 @@ async function askGemini(message, history, lang) {
           },
           contents: formattedHistory,
           generationConfig: {
-            temperature: 0.7, // Increased slightly for more natural responses
-            maxOutputTokens: 800
+          temperature: 0.6,
+				  maxOutputTokens: 200,
+				  topP: 0.8,
+ 					 topK: 40
+            
           }
         })
       }
