@@ -156,19 +156,19 @@ async function askGemini(message, history = [], lang) {
 
   try {
     const res = await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
 {
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":"application/json",
+"X-goog-api-key": key
 },
 body:JSON.stringify({
-systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},
-contents: formattedHistory,
-generationConfig:{
-temperature:0.7,
-maxOutputTokens:300
+contents:[
+{
+parts:[{text:message}]
 }
+]
 })
 }
 );
