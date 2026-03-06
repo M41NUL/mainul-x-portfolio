@@ -132,23 +132,25 @@ async function askGemini(message, history, lang) {
   try {
     // 🔥 FIXED: Using the model name that worked in your curl command
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
   {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: getPrompt(lang) }]
-          },
-          contents: formattedHistory,
-          generationConfig: {
-          temperature: 0.6,
-				  maxOutputTokens: 200,
-            
-          }
-        })
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: getPrompt(lang) }]
+      },
+      contents: formattedHistory,
+      generationConfig: {
+        temperature: 0.6,
+        maxOutputTokens: 200,
+        topP: 0.8,
+        topK: 40
       }
-    );
+    })
+  }
+);
+
 
     const data = await res.json();
     
