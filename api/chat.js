@@ -1,241 +1,268 @@
-// api/chat.js - Complete Chat API with Gemini & Groq
+// api/chat.js
+// MAINUL-X Smart Chat API
 // Author: Md. Mainul Islam
-// GitHub: M41NUL
 
-export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+let memory = [];
+const cache = new Map();
 
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+// ===== MEMORY =====
+function addMemory(role, content) {
+  memory.push({ role, content });
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    // Parse body
-    let parsedBody = req.body;
-    if (typeof req.body === 'string') {
-      try {
-        parsedBody = JSON.parse(req.body);
-      } catch (e) {
-        return res.status(400).json({ error: 'Invalid JSON format' });
-      }
-    }
-    
-    const { message, type = 'gemini' } = parsedBody;
-    
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
-    // Route to appropriate AI handler
-    if (type === 'groq') {
-      return await handleGroq(message, res);
-    } else {
-      return await handleGemini(message, res);
-    }
-
-  } catch (error) {
-    console.error('Chat API Error:', error);
-    return res.status(500).json({ error: error.message });
+  if (memory.length > 8) {
+    memory.shift();
   }
 }
 
-// ===== Gemini AI Handler =====
-async function handleGemini(message, res) {
-  const API_KEY = process.env.GEMINI_API_KEY;
-  
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
+// ===== LANGUAGE DETECT =====
+function detectLanguage(text) {
+
+  const banglaRegex = /[\u0980-\u09FF]/;
+
+  if (banglaRegex.test(text)) return "bangla";
+
+  const banglishWords = ["ami","tumi","valo","kemon","ki","ase","nai"];
+
+  const lower = text.toLowerCase();
+
+  if (banglishWords.some(w => lower.includes(w))) {
+    return "banglish";
   }
 
-  try {
-    // Try multiple model names
-    const models = [
-      'gemini-1.5-pro',
-      'gemini-pro',
-      'gemini-1.0-pro'
-    ];
-    
-    let lastError = null;
-    
-    for (const model of models) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{ text: message }]
-              }],
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 800
-              }
-            })
-          }
-        );
-        
-        const data = await response.json();
-        
-        if (!data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          return res.status(200).json({
-            candidates: [{
-              content: {
-                parts: [{
-                  text: data.candidates[0].content.parts[0].text
-                }]
-              }
-            }]
-          });
-        }
-        
-        lastError = data.error;
-      } catch (e) {
-        lastError = e;
-        continue;
-      }
-    }
-    
-    // If all models fail, try Groq as fallback
-    console.log('Gemini failed, trying Groq...');
-    return await handleGroq(message, res);
-
-  } catch (error) {
-    console.error('Gemini Error:', error);
-    return res.status(500).json({ error: error.message });
-  }
+  return "english";
 }
 
-// ===== Groq AI Handler =====
-async function handleGroq(message, res) {
-  const API_KEY = process.env.GROQ_API_KEY;
-  
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'GROQ_API_KEY not configured' });
-  }
+// ===== EMOJI CHECK =====
+function isEmoji(text) {
+  return /^[\p{Emoji}\s]+$/u.test(text);
+}
 
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-  role: "system",
-  content: `You are MAINUL-X AI HELPER.
+// ===== SPAM =====
+function isSpam(text) {
+  return !text || text.length > 1000;
+}
 
-You are an AI assistant for the website of developer Md. Mainul Islam.
+// ===== SYSTEM PROMPT =====
+function getPrompt(lang) {
 
-IDENTITY RULES:
-- You are NOT Md. Mainul Islam.
-- You are an AI assistant created by developer Md. Mainul Islam.
-- Never say that you are Mainul.
-- If someone asks who created you, reply clearly that developer Md. Mainul Islam created you.
+return `You are MAINUL-X AI HELPER.
 
-EXAMPLE REPLIES:
+Language mode: ${lang}
 
-Bangla:
-"আমাকে ডেভেলপার Md. Mainul Islam তৈরি করেছেন। আমি MAINUL-X AI Helper।"
+Rules:
+- Bangla message → Bangla reply
+- Banglish message → Banglish reply
+- English message → English reply
+- Never mix languages
 
-Banglish:
-"Amake developer Md. Mainul Islam banaise. Ami MAINUL-X AI Helper."
+Greeting rule:
+If user greets, reply politely and ask how to help.
 
-English:
-"I was created by developer Md. Mainul Islam. I am the MAINUL-X AI Helper."
+Emoji rule:
+If user sends only emoji, reply with short reaction.
 
-LANGUAGE RULES:
-- If the user writes in Bangla → reply in Bangla only.
-- If the user writes in Banglish (Bangla written using English letters) → reply in Banglish only.
-- If the user writes in English → reply in English only.
-- Never mix multiple languages in the same reply.
+Identity rule:
+You are an AI assistant created by developer Md. Mainul Islam.
 
-GREETING RULE:
-If the user sends greetings or casual messages like:
-"hi", "hello", "কেমন আছো", "ভালো আছি", "hey"
+Style:
+Short, natural, friendly responses.`;
+}
 
-Reply politely and ask how you can help.
+// ===== MAIN HANDLER =====
+export default async function handler(req,res){
 
-Example:
-"আমি ভালো আছি 😊 আপনাকে কীভাবে সাহায্য করতে পারি?"
+res.setHeader('Access-Control-Allow-Origin','*');
+res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS');
+res.setHeader('Access-Control-Allow-Headers','Content-Type');
 
-Do NOT start explaining about the developer during greetings.
+if(req.method==="OPTIONS"){
+return res.status(200).end();
+}
 
-INTRO RULE:
-Do NOT introduce yourself unless the user asks:
-- who you are
-- who created you
-- what MAINUL-X AI Helper is
+if(req.method!=="POST"){
+return res.status(405).json({error:"Method not allowed"});
+}
 
-EMOJI UNDERSTANDING RULES:
-If the user sends only emojis, understand their meaning and reply with a short friendly message.
+try{
 
-Examples:
-🙏 → greeting / respect  
-😊 🙂 😄 → friendly hello  
-🔥 🚀 💥 → excitement / awesome  
-😂 🤣 → funny reaction  
-😢 😭 → sadness  
-👍 👌 → agreement  
-❤️ 💙 → appreciation  
+let body=req.body;
 
-Do NOT generate long stories or random jokes for emojis.
+if(typeof body==="string"){
+body=JSON.parse(body);
+}
 
-EMOJI LANGUAGE RULE:
-If the user sends only emojis, reply using the language used in the previous message.
+const {message}=body;
 
-STYLE RULES:
-- Keep replies short, clear, and friendly.
-- Use natural conversational tone.
-- Avoid unnecessary long answers.
-- If the user's message is unclear, politely ask them to explain.
+if(isSpam(message)){
+return res.status(400).json({error:"Invalid message"});
+}
 
-WEBSITE PURPOSE:
-You help visitors with information about:
-- services
-- contact details
-- projects
-- developer Md. Mainul Islam
-- MAINUL-X related topics.`
+// ===== CACHE CHECK =====
+if(cache.has(message)){
+return res.status(200).json({
+candidates:[{
+content:{parts:[{text:cache.get(message)}]}
+}]
+});
+}
+
+// ===== LANGUAGE =====
+const lang=detectLanguage(message);
+
+// ===== EMOJI FAST RESPONSE =====
+if(isEmoji(message)){
+let reply="😊";
+
+if(lang==="bangla") reply="😊 বুঝতে পেরেছি। আপনাকে কীভাবে সাহায্য করতে পারি?";
+if(lang==="banglish") reply="😊 bujhte parsi. ki vabe help korte pari?";
+if(lang==="english") reply="😊 I understand. How can I help you?";
+
+return res.status(200).json({
+candidates:[{
+content:{parts:[{text:reply}]}
+}]
+});
+}
+
+// ===== MEMORY =====
+addMemory("user",message);
+
+// ===== GEMINI TRY =====
+const gemini=await askGemini(message,lang);
+
+if(gemini){
+
+addMemory("assistant",gemini);
+
+cache.set(message,gemini);
+
+return res.status(200).json({
+candidates:[{
+content:{parts:[{text:gemini}]}
+}]
+});
+
+}
+
+// ===== FALLBACK GROQ =====
+const groq=await askGroq(message,lang);
+
+addMemory("assistant",groq);
+
+cache.set(message,groq);
+
+return res.status(200).json({
+candidates:[{
+content:{parts:[{text:groq}]}
+}]
+});
+
+}catch(err){
+
+console.log(err);
+
+return res.status(500).json({error:"Server error"});
+
+}
+
+}
+
+// ===== GEMINI =====
+async function askGemini(message,lang){
+
+const key=process.env.GEMINI_API_KEY;
+
+if(!key) return null;
+
+try{
+
+const res=await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
 },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.4,
-        max_tokens: 300
-      })
-    });
+body:JSON.stringify({
 
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('Groq API Error:', data.error);
-      return res.status(500).json({ error: data.error.message });
-    }
+systemInstruction:{
+parts:[{text:getPrompt(lang)}]
+},
 
-    return res.status(200).json({
-      candidates: [{
-        content: {
-          parts: [{
-            text: data.choices[0].message.content
-          }]
-        }
-      }]
-    });
+contents:[
+...memory.map(m=>({
+role:m.role==="assistant"?"model":"user",
+parts:[{text:m.content}]
+})),
+{
+role:"user",
+parts:[{text:message}]
+}
+],
 
-  } catch (error) {
-    console.error('Groq Error:', error);
-    return res.status(500).json({ error: error.message });
-  }
+generationConfig:{
+temperature:0.4,
+maxOutputTokens:300
+}
+
+})
+}
+);
+
+const data=await res.json();
+
+return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+
+}catch{
+
+return null;
+
+}
+
+}
+
+// ===== GROQ =====
+async function askGroq(message,lang){
+
+const key=process.env.GROQ_API_KEY;
+
+if(!key) return "AI unavailable.";
+
+try{
+
+const res=await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
+method:"POST",
+headers:{
+Authorization:`Bearer ${key}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+
+model:"llama-3.3-70b-versatile",
+
+messages:[
+{role:"system",content:getPrompt(lang)},
+...memory,
+{role:"user",content:message}
+],
+
+temperature:0.4,
+max_tokens:300
+
+})
+}
+);
+
+const data=await res.json();
+
+return data?.choices?.[0]?.message?.content || "No response";
+
+}catch{
+
+return "AI error.";
+
+}
+
 }
