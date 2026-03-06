@@ -2,7 +2,7 @@
 // MAINUL-X Smart Chat API
 // Author: Md. Mainul Islam
 // GitHub: M41NUL
-
+export const maxDuration = 60;
 // ===== YOUR DETAILED SYSTEM PROMPT =====
 const SYSTEM_PROMPT = `You are MAINUL-X AI HELPER, the official and highly intelligent virtual assistant of Md. Mainul Islam (M41NUL). 
 
@@ -133,7 +133,7 @@ async function askGemini(message, history = [], lang) {
 
   // ===== FORMAT HISTORY (Role mapping) =====
   let rawHistory = (history || [])
-    .slice(-10) 
+    .slice(-5) 
     .map(msg => ({
       role: msg.role === "ai" ? "model" : "user",
       parts: [{ text: msg.text || "" }]
@@ -157,7 +157,7 @@ async function askGemini(message, history = [], lang) {
 
   try {
     const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
