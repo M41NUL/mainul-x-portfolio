@@ -146,7 +146,7 @@ async function askGemini(message, history, lang) {
   try {
     
     const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -157,7 +157,7 @@ async function askGemini(message, history, lang) {
       contents: formattedHistory,
       generationConfig: {
         temperature: 0.6,
-        maxOutputTokens: 200,
+        maxOutputTokens: 300,
         topP: 0.8,
         topK: 40
       }
@@ -206,10 +206,9 @@ async function askGroq(message, history, lang) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: groqMessages,
-        temperature: 0.7,
-        max_tokens: 800
+        model: "llama-3.1-8b-instant",
+		  temperature: 0.7,
+		  max_tokens: 300
       })
     });
 
