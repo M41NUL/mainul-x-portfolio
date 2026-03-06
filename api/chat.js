@@ -178,7 +178,7 @@ async function askGemini(message, history = [], lang) {
     const data = await res.json();
 
     if (data.error) {
-      console.error("🔴 Groq API Error:", JSON.stringify(data.error));
+      console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
       return "Sorry, I am having trouble connecting right now.";
     }
 
