@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2"
-  },
-  "engines": {
-    "node": "20.x"
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.7"
+    
   }
 }
