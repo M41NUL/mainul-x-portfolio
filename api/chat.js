@@ -1,8 +1,8 @@
 // api/chat.js
 // MAINUL-X Smart Chat API
-// Author: Md. Mainul Islam
-// GitHub: M41NUL
+// Author: Md. Mainul Islam (M41NUL)
 export const maxDuration = 60;
+
 // ===== YOUR DETAILED SYSTEM PROMPT =====
 const SYSTEM_PROMPT = `You are MAINUL-X AI HELPER, the official and highly intelligent virtual assistant of Md. Mainul Islam (M41NUL). 
 
@@ -95,7 +95,6 @@ export default async function handler(req, res) {
     if (!message || message.length > 1000) {
       return res.status(400).json({ error: "Invalid or too long message" });
     }
-
     
     const lang = detectLanguage(message);
    
@@ -157,35 +156,82 @@ async function askGemini(message, history = [], lang) {
 
   try {
     const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: getPrompt(lang) }]
-      },
-      contents: formattedHistory,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 300
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: getPrompt(lang) }]
+          },
+          contents: formattedHistory,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 300
+          }
+        })
       }
-    })
-  }
-);
-
+    );
 
     const data = await res.json();
 
     if (data.error) {
       console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
-      return "Sorry, I am having trouble connecting right now.";
+      return null; // এখানে null দিলে সে Groq এ যাবে
     }
 
+    // ✅ ম্যাজিক ফিক্স: জেমিনির সঠিক রেসপন্স পাথ
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+
+  } catch (err) {
+    console.error("🔴 Gemini Fetch Error:", err);
+    return null;
+  }
+}
+
+// ===== GROQ API HANDLER =====
+async function askGroq(message, history, lang) {
+  const key = process.env.GROQ_API_KEY;
+
+  if (!key) {
+    console.error("🔴 GROQ_API_KEY is missing");
+    return "বট বর্তমানে অনেক ব্যস্ত। দয়া করে একটু পর আবার চেষ্টা করুন।";
+  }
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: getPrompt(lang) },
+          ...history.map(msg => ({
+            role: msg.role === "ai" ? "assistant" : "user",
+            content: msg.text
+          })),
+          { role: "user", content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 300
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      console.error("🔴 Groq API Error:", JSON.stringify(data.error));
+      return "দুঃখিত, আমি বর্তমানে কানেক্ট করতে পারছি না।";
+    }
+
+    // ✅ Groq এর রেসপন্স পাথ
     return data?.choices?.[0]?.message?.content || "No response generated.";
 
   } catch (err) {
     console.error("🔴 Groq Fetch Error:", err);
-    return "An error occurred while trying to generate a response.";
+    return "সার্ভারে সমস্যা হচ্ছে, একটু পর আবার মেসেজ দিন।";
   }
 }
