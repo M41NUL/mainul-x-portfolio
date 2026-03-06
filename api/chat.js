@@ -157,74 +157,23 @@ async function askGemini(message, history = [], lang) {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          systemInstruction: { 
-            parts: [{ text: getPrompt(lang) }]
-          },
-          contents: formattedHistory,
-          generationConfig: {
-            temperature: 0.6,
-            maxOutputTokens: 300,
-            topP: 0.8,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (data.error) {
-      console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
-      return null;
-    }
-
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-
-  } catch (err) {
-    console.error("🔴 Gemini Fetch Error:", err);
-    return null;
-  }
-}
-
-// ===== GROQ API HANDLER =====
-async function askGroq(message, history, lang) {
-  const key = process.env.GROQ_API_KEY;
-
-  if (!key) {
-    console.error("🔴 GROQ_API_KEY is missing");
-    return "AI is currently unavailable due to missing configuration.";
-  }
-
-  const groqMessages = [
-    { role: "system", content: getPrompt(lang) },
-    ...history.map(msg => ({
-      role: msg.role === "ai" ? "assistant" : "user",
-      content: msg.text
-    })),
-    { role: "user", content: message }
-  ];
-
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${key}`,
-        "Content-Type": "application/json"
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: getPrompt(lang) }]
       },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: groqMessages,
+      contents: formattedHistory,
+      generationConfig: {
         temperature: 0.7,
-        max_tokens: 300
-      })
-    });
+        maxOutputTokens: 300
+      }
+    })
+  }
+);
+
 
     const data = await res.json();
 
