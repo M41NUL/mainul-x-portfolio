@@ -204,7 +204,7 @@ function markAsRead(msgId) {
     }
 }
 
-// ===== TYPING INDICATOR =====
+// ===== TYPING INDICATOR - FIXED =====
 function showTypingIndicator() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -212,18 +212,25 @@ function showTypingIndicator() {
     const typingDiv = document.createElement("div");
     typingDiv.className = "message bot";
     typingDiv.id = "typingIndicator";
+    
     typingDiv.innerHTML = `
-        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
         <div class="message-wrapper">
-            <div class="typing-indicator">
-                <span></span><span></span><span></span>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </div>
     `;
+    
     chatMessages.appendChild(typingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-
 function removeTypingIndicator() {
     document.getElementById("typingIndicator")?.remove();
 }
