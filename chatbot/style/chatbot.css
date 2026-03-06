@@ -79,38 +79,53 @@ GitHub: https://github.com/M41NUL
     gap: 8px;
 }
 
-/* Message Container */
+/* Message Container - FIXED POSITIONING */
 .message {
     display: flex;
     align-items: flex-start;
-    gap: 5px;
+    gap: 4px; /* Gap between avatar and text */
     max-width: 100%;
 }
 
-.message.user { flex-direction: row-reverse; }
-.message.bot { flex-direction: row; }
+/* Bot Message - Icon বামে, Text ডানে */
+.message.bot {
+    flex-direction: row;
+    justify-content: flex-start;
+}
 
-/* Avatar */
+/* User Message - Icon ডানে, Text বামে */
+.message.user {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+}
+
+/* Avatar - Fixed Size */
 .message-avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     flex-shrink: 0;
 }
 
+/* Bot Avatar - বামে */
 .bot .message-avatar {
     background: linear-gradient(135deg, #2563eb, #7c3aed);
     color: white;
+    margin-right: 4px; /* Small gap after avatar */
+    margin-left: 0;
 }
 
+/* User Avatar - ডানে */
 .user .message-avatar {
     background: var(--card-bg);
     border: 1px solid var(--primary);
     color: var(--light);
+    margin-left: 4px; 
+    margin-right: 0;
 }
 
 /* Message Wrapper */
@@ -120,8 +135,13 @@ GitHub: https://github.com/M41NUL
     flex-direction: column;
 }
 
-.message.user .message-wrapper { align-items: flex-end; }
-.message.bot .message-wrapper { align-items: flex-start; }
+.message.user .message-wrapper { 
+    align-items: flex-end; 
+}
+
+.message.bot .message-wrapper { 
+    align-items: flex-start; 
+}
 
 /* Message Bubble */
 .message-content {
@@ -132,12 +152,14 @@ GitHub: https://github.com/M41NUL
     word-wrap: break-word;
 }
 
+/* Bot Bubble - বামে */
 .bot .message-content {
     background: var(--card-bg);
     color: var(--light);
     border-bottom-left-radius: 4px;
 }
 
+/* User Bubble - ডানে */
 .user .message-content {
     background: var(--gradient);
     color: white;
@@ -152,7 +174,7 @@ GitHub: https://github.com/M41NUL
     margin-top: 2px;
 }
 
-/* Read Receipt - Tiny */
+/* Read Receipt */
 .read-receipt {
     font-size: 8px;
     color: var(--primary);
@@ -237,7 +259,7 @@ GitHub: https://github.com/M41NUL
 
 .quick-btn:hover i { color: white; }
 
-/* Input Area - Height 35px */
+/* Input Area */
 .chatbot-input {
     padding: 3px 6px;
     background: var(--card-bg);
@@ -249,7 +271,7 @@ GitHub: https://github.com/M41NUL
     min-height: 35px;
 }
 
-/* All Buttons - Size 25px */
+/* All Buttons */
 .chatbot-input button,
 .upload-btn,
 .voice-btn,
@@ -269,7 +291,7 @@ GitHub: https://github.com/M41NUL
     flex-shrink: 0;
 }
 
-/* Input Field - Height 25px */
+/* Input Field */
 .chatbot-input input {
     flex: 1;
     height: 25px;
@@ -281,7 +303,6 @@ GitHub: https://github.com/M41NUL
     font-size: 10px;
     outline: none;
 }
-
 
 /* Hover Effects */
 .chatbot-input button:hover,
@@ -332,18 +353,10 @@ GitHub: https://github.com/M41NUL
         bottom: 70px;
     }
     
-    .chatbot-input button,
-    .upload-btn,
-    .voice-btn,
-    #sendMessage {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-    }
-    
-    .chatbot-input input {
-        height: 32px;
-        font-size: 12px;
+    .message-avatar {
+        width: 24px;
+        height: 24px;
+        font-size: 11px;
     }
     
     .message-content {
@@ -351,9 +364,11 @@ GitHub: https://github.com/M41NUL
         padding: 6px 10px;
     }
     
-    .message-avatar {
-        width: 22px;
-        height: 22px;
-        font-size: 10px;
+    .bot .message-avatar {
+        margin-right: 3px;
+    }
+    
+    .user .message-avatar {
+        margin-left: 3px;
     }
 }
