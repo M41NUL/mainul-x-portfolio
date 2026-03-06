@@ -499,7 +499,7 @@
         </div>
     </footer>
 
-    <!-- Chatbot Section -->
+<!-- Chatbot Section -->
 <div class="chatbot-toggle" id="chatbotToggle">
     <i class="fas fa-comment-dots"></i>
 </div>
@@ -518,23 +518,29 @@
         </div>
     </div>
     
-    <div class="chatbot-messages" id="chatMessages"></div>
-    <div class="quick-questions" id="quickQuestions"></div>
+    <div class="chatbot-messages" id="chatMessages">
+        <!-- Messages will appear here -->
+    </div>
+    
+    <div class="quick-questions" id="quickQuestions">
+        <!-- Quick questions will appear here -->
+    </div>
     
     <div class="chatbot-input">
-    <!-- File Upload Button -->
-    <label for="fileUpload" class="upload-btn">
-        <i class="fas fa-image"></i>
-    </label>
-    <input type="file" id="fileUpload" accept="image/*" style="display:none">
-    
-    <!-- Voice Button -->
-    <button id="voiceBtn" class="voice-btn" onclick="startVoice()">
-        <i class="fas fa-microphone"></i>
-    </button>
-    
-    <input type="text" id="userInput" placeholder="Type message...">
-    <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+        <!-- File Upload Button -->
+        <label for="fileUpload" class="upload-btn">
+            <i class="fas fa-image"></i>
+        </label>
+        <input type="file" id="fileUpload" accept="image/*" style="display:none">
+        
+        <!-- Voice Button -->
+        <button id="voiceBtn" class="voice-btn" onclick="startVoice()">
+            <i class="fas fa-microphone"></i>
+        </button>
+        
+        <input type="text" id="userInput" placeholder="Type message...">
+        <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+    </div>
 </div>
     
     <!-- Scripts -->
