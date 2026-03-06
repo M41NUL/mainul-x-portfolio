@@ -62,9 +62,8 @@ function detectLanguage(text) {
 
 // ===== GET PROMPT FUNCTION =====
 function getPrompt(lang) {
-  return SYSTEM_PROMPT; // Your detailed prompt
+  return SYSTEM_PROMPT;
 }
-
 
 // ===== MAIN HANDLER =====
 export default async function handler(req, res) {
@@ -73,7 +72,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle Preflight
+
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -92,7 +91,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // 🔥 FIXED: Receive 'history' from the frontend instead of using a global variable
     const { message, history = [] } = body;
 
     if (!message || message.length > 1000) {
@@ -101,7 +99,7 @@ export default async function handler(req, res) {
 
     const lang = detectLanguage(message);
 
-    // Try Gemini First
+   
     console.log("Trying Gemini...");
     const geminiResponse = await askGemini(message, history, lang);
 
@@ -111,7 +109,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Fallback to Groq if Gemini fails
+   
     console.log("Gemini failed or returned null, trying Groq...");
     const groqResponse = await askGroq(message, history, lang);
     
@@ -133,20 +131,20 @@ async function askGemini(message, history, lang) {
     return null;
   }
 
-  // Format history for Gemini
+
   const formattedHistory = history.map(msg => ({
     role: msg.role === "ai" ? "model" : "user",
     parts: [{ text: msg.text }]
   }));
 
-  // Append current message
+  
   formattedHistory.push({
     role: "user",
     parts: [{ text: message }]
   });
 
   try {
-    // 🔥 FIXED: Using the model name that worked in your curl command
+    
     const res = await fetch(
   `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
   {
@@ -183,7 +181,7 @@ async function askGemini(message, history, lang) {
   }
 }
 
-// ===== GROQ API HANDLER (Fallback) =====
+
 async function askGroq(message, history, lang) {
   const key = process.env.GROQ_API_KEY;
   if (!key) {
@@ -191,7 +189,6 @@ async function askGroq(message, history, lang) {
     return "AI is currently unavailable due to missing configuration.";
   }
 
-  // Format history for Groq
   const groqMessages = [
     { role: "system", content: getPrompt(lang) },
     ...history.map(msg => ({
@@ -229,4 +226,5 @@ async function askGroq(message, history, lang) {
     console.error("Groq Fetch Error:", err);
     return "An error occurred while trying to generate a response.";
   }
-} 
+}
+    
