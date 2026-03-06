@@ -124,50 +124,63 @@ export default async function handler(req, res) {
 }
 
 // ===== GEMINI API HANDLER =====
-async function askGemini(message, history, lang) {
+async function askGemini(message, history = [], lang) {
+
   const key = process.env.GEMINI_API_KEY;
+
   if (!key) {
     console.error("GEMINI_API_KEY is missing");
     return null;
   }
 
+  // ===== FORMAT HISTORY =====
+  const formattedHistory = (history || [])
+    .slice(-10) // last 10 messages only
+    .map(msg => ({
+      role: msg.role === "ai" ? "model" : "user",
+      parts: [
+        {
+          text: msg.text || ""
+        }
+      ]
+    }));
 
-  const formattedHistory = history.map(msg => ({
-    role: msg.role === "ai" ? "model" : "user",
-    parts: [{ text: msg.text }]
-  }));
-
-  
+  // ===== ADD CURRENT USER MESSAGE =====
   formattedHistory.push({
     role: "user",
-    parts: [{ text: message }]
+    parts: [
+      {
+        text: message || ""
+      }
+    ]
   });
 
   try {
-    
-    const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: getPrompt(lang) }]
-      },
-      contents: formattedHistory,
-      generationConfig: {
-        temperature: 0.6,
-        maxOutputTokens: 300,
-        topP: 0.8,
-        topK: 40
-      }
-    })
-  }
-);
 
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: getPrompt(lang) }]
+          },
+          contents: formattedHistory,
+          generationConfig: {
+            temperature: 0.6,
+            maxOutputTokens: 300,
+            topP: 0.8,
+            topK: 40
+          }
+        })
+      }
+    );
 
     const data = await res.json();
-    
+
     if (data.error) {
       console.error("Gemini API returned an error:", data.error);
       return null;
@@ -184,6 +197,7 @@ async function askGemini(message, history, lang) {
 
 async function askGroq(message, history, lang) {
   const key = process.env.GROQ_API_KEY;
+
   if (!key) {
     console.error("GROQ_API_KEY is missing");
     return "AI is currently unavailable due to missing configuration.";
@@ -199,6 +213,7 @@ async function askGroq(message, history, lang) {
   ];
 
   try {
+
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -207,16 +222,17 @@ async function askGroq(message, history, lang) {
       },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
-		  temperature: 0.7,
-		  max_tokens: 300
+        messages: groqMessages,
+        temperature: 0.7,
+        max_tokens: 300
       })
     });
 
     const data = await res.json();
-    
+
     if (data.error) {
-       console.error("Groq API returned an error:", data.error);
-       return "Sorry, I am having trouble connecting right now.";
+      console.error("Groq API returned an error:", data.error);
+      return "Sorry, I am having trouble connecting right now.";
     }
 
     return data?.choices?.[0]?.message?.content || "No response generated.";
@@ -226,4 +242,3 @@ async function askGroq(message, history, lang) {
     return "An error occurred while trying to generate a response.";
   }
 }
-    
