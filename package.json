@@ -1,7 +1,9 @@
+
 {
   "name": "mainul-x-portfolio",
   "version": "1.0.0",
+  "type": "module", 
   "dependencies": {
-    "nodemailer": "^6.9.7"
+    ...
   }
 }
