@@ -72,7 +72,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -97,20 +96,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid or too long message" });
     }
 
+    
     const lang = detectLanguage(message);
-
    
-    console.log("Trying Gemini...");
+    console.log("🟢 Trying Gemini API...");
     const geminiResponse = await askGemini(message, history, lang);
 
     if (geminiResponse) {
+      console.log("✅ Gemini Success!");
       return res.status(200).json({
         candidates: [{ content: { parts: [{ text: geminiResponse }] } }]
       });
     }
-
    
-    console.log("Gemini failed or returned null, trying Groq...");
+    console.log("🟡 Gemini failed or returned null, trying Groq...");
     const groqResponse = await askGroq(message, history, lang);
     
     return res.status(200).json({
@@ -118,45 +117,45 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error("Main Handler Error:", err);
+    console.error("🔴 Main Handler Error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 }
 
 // ===== GEMINI API HANDLER =====
 async function askGemini(message, history = [], lang) {
-
   const key = process.env.GEMINI_API_KEY;
 
   if (!key) {
-    console.error("GEMINI_API_KEY is missing");
+    console.error("🔴 GEMINI_API_KEY is missing");
     return null;
   }
 
-  // ===== FORMAT HISTORY =====
-  const formattedHistory = (history || [])
-    .slice(-10) // last 10 messages only
+  // ===== FORMAT HISTORY (Role mapping) =====
+  let rawHistory = (history || [])
+    .slice(-10) 
     .map(msg => ({
       role: msg.role === "ai" ? "model" : "user",
-      parts: [
-        {
-          text: msg.text || ""
-        }
-      ]
+      parts: [{ text: msg.text || "" }]
     }));
 
   // ===== ADD CURRENT USER MESSAGE =====
-  formattedHistory.push({
+  rawHistory.push({
     role: "user",
-    parts: [
-      {
-        text: message || ""
-      }
-    ]
+    parts: [{ text: message || "" }]
   });
 
-  try {
+  let formattedHistory = [];
+  for (let msg of rawHistory) {
+    let lastMsg = formattedHistory[formattedHistory.length - 1];
+    if (lastMsg && lastMsg.role === msg.role) {
+      lastMsg.parts[0].text += "\n" + msg.parts[0].text;
+    } else {
+      formattedHistory.push(msg);
+    }
+  }
 
+  try {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
       {
@@ -165,7 +164,7 @@ async function askGemini(message, history = [], lang) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          system_instruction: {
+          systemInstruction: { 
             parts: [{ text: getPrompt(lang) }]
           },
           contents: formattedHistory,
@@ -182,24 +181,24 @@ async function askGemini(message, history = [], lang) {
     const data = await res.json();
 
     if (data.error) {
-      console.error("Gemini API returned an error:", data.error);
+      console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
       return null;
     }
 
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
 
   } catch (err) {
-    console.error("Gemini Fetch Error:", err);
+    console.error("🔴 Gemini Fetch Error:", err);
     return null;
   }
 }
 
-
+// ===== GROQ API HANDLER =====
 async function askGroq(message, history, lang) {
   const key = process.env.GROQ_API_KEY;
 
   if (!key) {
-    console.error("GROQ_API_KEY is missing");
+    console.error("🔴 GROQ_API_KEY is missing");
     return "AI is currently unavailable due to missing configuration.";
   }
 
@@ -213,7 +212,6 @@ async function askGroq(message, history, lang) {
   ];
 
   try {
-
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -231,14 +229,14 @@ async function askGroq(message, history, lang) {
     const data = await res.json();
 
     if (data.error) {
-      console.error("Groq API returned an error:", data.error);
+      console.error("🔴 Groq API Error:", JSON.stringify(data.error));
       return "Sorry, I am having trouble connecting right now.";
     }
 
     return data?.choices?.[0]?.message?.content || "No response generated.";
 
   } catch (err) {
-    console.error("Groq Fetch Error:", err);
+    console.error("🔴 Groq Fetch Error:", err);
     return "An error occurred while trying to generate a response.";
   }
 }
