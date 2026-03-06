@@ -1,26 +1,10 @@
 // api/chat.js
-// MAINUL-X Smart Chat API (Fixed Memory & Gemini Integration)
+// MAINUL-X Smart Chat API
 // Author: Md. Mainul Islam
+// GitHub: M41NUL
 
-// ===== LANGUAGE DETECT =====
-function detectLanguage(text) {
-  const banglaRegex = /[\u0980-\u09FF]/;
-  if (banglaRegex.test(text)) return "bangla";
-
-  const banglishWords = ["ami", "tumi", "valo", "kemon", "ki", "ase", "nai", "korsi", "khaisi"];
-  const lower = text.toLowerCase();
-  
-  // Simple word boundary check for better Banglish detection
-  if (banglishWords.some(w => new RegExp(`\\b${w}\\b`).test(lower))) {
-    return "banglish";
-  }
-
-  return "english";
-}
-
-// ===== SYSTEM PROMPT =====
-function getPrompt(lang) {
-  return `You are MAINUL-X AI HELPER, the official and highly intelligent virtual assistant of Md. Mainul Islam (M41NUL). 
+// ===== YOUR DETAILED SYSTEM PROMPT =====
+const SYSTEM_PROMPT = `You are MAINUL-X AI HELPER, the official and highly intelligent virtual assistant of Md. Mainul Islam (M41NUL). 
 
 ### IDENTITY & PERSONALITY:
 - You represent a top-tier Cyber Security Specialist and Termux Tools Developer.
@@ -37,18 +21,41 @@ function getPrompt(lang) {
 5. EMOJI USAGE: Use 1-2 relevant emojis to keep the conversation lively but don't overdo it.
 
 ### TECHNICAL KNOWLEDGE BASE (Only share if asked):
-- Developer: Md. Mainul Islam.
-- Role: Cyber Security Specialist, Digital Marketing Expert, Termux Tools Developer.
-- Founder: SOCINEST-X.
-- Projects: 50+ Open-source GitHub projects.
-- Contact: +8801308850528 or githubmainul@gmail.com.
+- **Developer:** Md. Mainul Islam
+- **Role:** Cyber Security Specialist, Digital Marketing Expert, Termux Tools Developer
+- **Founder:** SOCINEST-X
+- **Projects:** 50+ Open-source GitHub projects
+- **GitHub:** M41NUL (https://github.com/M41NUL)
+- **Contact:** +8801308850528 or githubmainul@gmail.com
+- **Secondary Email:** devmainulislam@gmail.com
+- **Telegram:** @mdmainulislaminfo
 
 ### HANDLING EMOJIS:
 - If a user sends only emojis, respond with a matching emoji or a short friendly comment based on the current mood of the chat.
 
 ### CRITICAL GOAL:
 Your main goal is to make the visitor feel welcome on Mainul's portfolio and convince them that Mainul is the best person to work with.`;
+
+// ===== LANGUAGE DETECT =====
+function detectLanguage(text) {
+  const banglaRegex = /[\u0980-\u09FF]/;
+  if (banglaRegex.test(text)) return "bangla";
+
+  const banglishWords = ["ami", "tumi", "valo", "kemon", "ki", "ase", "nai", "korsi", "khaisi", "accha", "korte", "chai", "bolo", "jao", "a6o", "k6o", "tmi", "apni", "amr", "tomar"];
+  const lower = text.toLowerCase();
+  
+  if (banglishWords.some(w => new RegExp(`\\b${w}\\b`).test(lower))) {
+    return "banglish";
+  }
+
+  return "english";
 }
+
+// ===== GET PROMPT FUNCTION =====
+function getPrompt(lang) {
+  return SYSTEM_PROMPT; // Your detailed prompt
+}
+
 
 // ===== MAIN HANDLER =====
 export default async function handler(req, res) {
@@ -213,4 +220,4 @@ async function askGroq(message, history, lang) {
     console.error("Groq Fetch Error:", err);
     return "An error occurred while trying to generate a response.";
   }
-}
+} 
