@@ -156,26 +156,31 @@ async function askGemini(message, history = [], lang) {
 
   try {
     const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: rawHistory,
-      generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
-    })
-  }
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},
+contents: formattedHistory,
+generationConfig:{
+temperature:0.7,
+maxOutputTokens:300
+}
+})
+}
 );
 
     const data = await res.json();
 
     if (data.error) {
       console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
-      return null; // এখানে null দিলে সে Groq এ যাবে
+      return null; 
     }
 
-    // ✅ ম্যাজিক ফিক্স: জেমিনির সঠিক রেসপন্স পাথ
+  
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
 
   } catch (err) {
@@ -222,7 +227,6 @@ async function askGroq(message, history, lang) {
       return "দুঃখিত, আমি বর্তমানে কানেক্ট করতে পারছি না।";
     }
 
-    // ✅ Groq এর রেসপন্স পাথ
     return data?.choices?.[0]?.message?.content || "No response generated.";
 
   } catch (err) {
