@@ -10,7 +10,9 @@ let chatHistory = [];
 
 // ===== LANGUAGE DETECTION with BANGLISH =====
 function detectLanguage(message) {
-    const banglaPattern = /[\u0980-\u09FF]/;
+    const banglaRegex = /[\u0980-\u09FF]/;
+    if (banglaRegex.test(message)) return "bn";
+
     const banglishWords = [
         "ami", "tumi", "apni", "kemon", "bhalo", "kisu", "keno", 
         "ki", "valo", "acha", "ase", "ache", "hobe", "korte", 
@@ -18,8 +20,6 @@ function detectLanguage(message) {
         "acche", "vlo", "kmn", "kn", "kno", "tmi", "apnar",
         "amr", "tomar", "ekhon", "kothay", "kichu", "bolo"
     ];
-
-    if (banglaPattern.test(message)) return "bn";
 
     const text = message.toLowerCase();
     for (let word of banglishWords) {
@@ -93,17 +93,15 @@ async function processMessage(message) {
     return await askAI(message);
 }
 
-// ===== AI REQUEST with MEMORY (FIXED) =====
+// ===== AI REQUEST with MEMORY =====
 async function askAI(message) {
     try {
-        // Don't push to history before API call!
-
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 message: message,
-                history: chatHistory.slice(-10), // Send last 10 messages
+                history: chatHistory.slice(-10),
                 type: 'gemini' 
             })
         });
@@ -113,11 +111,9 @@ async function askAI(message) {
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
             const reply = data.candidates[0].content.parts[0].text;
             
-            // Add BOTH messages to history AFTER successful response
             chatHistory.push({ role: 'user', text: message });
             chatHistory.push({ role: 'ai', text: reply });
             
-            // Keep history manageable
             if (chatHistory.length > 20) {
                 chatHistory = chatHistory.slice(-20);
             }
@@ -133,7 +129,7 @@ async function askAI(message) {
     }
 }
 
-// ===== ADD MESSAGE WITH AVATAR, TIME, COPY =====
+// ===== ADD MESSAGE WITH CORRECT ICON POSITION =====
 function addMessage(text, sender = "bot") {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -143,27 +139,31 @@ function addMessage(text, sender = "bot") {
     messageDiv.className = `message ${sender}`;
     messageDiv.dataset.id = msgId;
 
+    // Avatar তৈরি
     const avatar = document.createElement("div");
     avatar.className = "message-avatar";
     avatar.innerHTML = sender === "bot" ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
 
+    // Content Wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "message-wrapper";
 
+    // Content
     const content = document.createElement("div");
     content.className = "message-content";
-    content.innerHTML = formatMessage(text);
-    
-    makeCopyable(content, text);
+    content.textContent = text; 
 
+    // Footer
     const footer = document.createElement("div");
     footer.className = "message-footer";
 
+    // Time
     const time = document.createElement("div");
     time.className = "message-time";
     const now = new Date();
     time.innerHTML = `<i class="fas fa-clock"></i> ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
+    // Read receipt for user messages
     if (sender === "user") {
         const receipt = document.createElement("div");
         receipt.className = "read-receipt";
@@ -175,6 +175,7 @@ function addMessage(text, sender = "bot") {
     wrapper.appendChild(content);
     wrapper.appendChild(footer);
 
+  
     if (sender === "bot") {
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(wrapper);
@@ -186,11 +187,13 @@ function addMessage(text, sender = "bot") {
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
+    // Mark as read after 1 second
     if (sender === "bot") {
         setTimeout(() => markAsRead(msgId), 1000);
     }
 }
 
+// ===== MARK AS READ =====
 function markAsRead(msgId) {
     const msg = document.querySelector(`[data-id="${msgId}"]`);
     if (msg) {
@@ -201,31 +204,7 @@ function markAsRead(msgId) {
     }
 }
 
-function formatMessage(text) {
-    let formatted = text;
-    if (typeof parseMarkdown === 'function') formatted = parseMarkdown(formatted);
-    if (typeof highlightCode === 'function') formatted = highlightCode(formatted);
-    return formatted;
-}
-
-async function sendMessage() {
-    const input = document.getElementById("userInput");
-    const message = input.value.trim();
-    if (!message) return;
-
-    addMessage(message, "user");
-    input.value = "";
-
-    showTypingIndicator();
-
-    const reply = await processMessage(message);
-    
-    removeTypingIndicator();
-    addMessage(reply, "bot");
-
-    if (window.speechEnabled) speakText(reply);
-}
-
+// ===== TYPING INDICATOR =====
 function showTypingIndicator() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -249,27 +228,24 @@ function removeTypingIndicator() {
     document.getElementById("typingIndicator")?.remove();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("chatbotToggle");
-    const chatbox = document.getElementById("chatbotContainer");
-    const closeBtn = document.getElementById("closeChat");
-    const sendBtn = document.getElementById("sendMessage");
+// ===== SEND MESSAGE =====
+async function sendMessage() {
     const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
 
-    if (toggle) {
-        toggle.addEventListener("click", () => {
-            chatbox.classList.toggle("open");
-            if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
-                addMessage("Welcome to MAINUL-X AI Assistant. How can I assist you today?", "bot");
-            }
-        });
-    }
+    addMessage(message, "user");
+    input.value = "";
 
-    if (closeBtn) closeBtn.addEventListener("click", () => chatbox.classList.remove("open"));
-    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
-    if (input) input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
-});
+    showTypingIndicator();
 
+    const reply = await processMessage(message);
+    
+    removeTypingIndicator();
+    addMessage(reply, "bot");
+}
+
+// ===== COPY FUNCTIONALITY =====
 function makeCopyable(element, text) {
     let pressTimer;
     element.addEventListener('touchstart', () => {
@@ -296,7 +272,40 @@ async function copyText(text, element) {
     }
 }
 
+// ===== DOM CONTENT LOADED =====
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("chatbotToggle");
+    const chatbox = document.getElementById("chatbotContainer");
+    const closeBtn = document.getElementById("closeChat");
+    const sendBtn = document.getElementById("sendMessage");
+    const input = document.getElementById("userInput");
+
+    if (toggle) {
+        toggle.addEventListener("click", () => {
+            chatbox.classList.toggle("open");
+            if (chatbox.classList.contains("open") && chatbox.querySelectorAll('.message').length === 0) {
+                addMessage("Welcome to MAINUL-X AI Assistant. How can I assist you today?", "bot");
+            }
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => chatbox.classList.remove("open"));
+    }
+    
+    if (sendBtn) {
+        sendBtn.addEventListener("click", sendMessage);
+    }
+    
+    if (input) {
+        input.addEventListener("keypress", (e) => { 
+            if (e.key === "Enter") sendMessage(); 
+        });
+    }
+});
+
+// ===== EXPOSE FUNCTIONS =====
 window.processMessage = processMessage;
 window.sendMessage = sendMessage;
 
-console.log("MAINUL-X chatbot loaded with Memory & Banglish");
+console.log("✅ MAINUL-X chatbot loaded with Memory & Banglish");
