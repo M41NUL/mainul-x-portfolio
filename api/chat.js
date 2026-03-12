@@ -23,7 +23,7 @@ Profession:
 • Termux Tools Developer  
 • Web Developer  
 
-Founder of SOCINEST-X.
+Founder of SOCINEST-X and MAINUL-X. 
 
 GitHub Profile:
 https://github.com/M41NUL
