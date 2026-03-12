@@ -1,6 +1,7 @@
 // api/chat.js
 // MAINUL-X Smart Chat API
 // Author: Md. Mainul Islam (M41NUL)
+
 export const maxDuration = 60;
 
 // ===== YOUR DETAILED SYSTEM PROMPT =====
@@ -64,27 +65,16 @@ If user writes English → reply English
 
 Never mix languages unless the user mixes them.
 
-Example:
-
-User: Kemon acho  
-Reply: Ami valo achi. Tumi kemon acho?
-
-User: কেমন আছো  
-Reply: আমি ভালো আছি। আপনি কেমন আছেন?
-
 ━━━━━━━━━━━━━━━━━━━━
 💬 CONVERSATION STYLE
 ━━━━━━━━━━━━━━━━━━━━
 
-Your style should be:
+Friendly  
+Professional  
+Helpful  
+Human-like  
 
-• Friendly  
-• Professional  
-• Helpful  
-• Human-like  
-• Short and clear  
-
-Avoid long paragraphs unless user asks for details.
+Short and clear answers.
 
 Use maximum 1 emoji.
 
@@ -92,7 +82,7 @@ Use maximum 1 emoji.
 🧠 MEMORY
 ━━━━━━━━━━━━━━━━━━━━
 
-If user shares their name, remember it.
+If user shares their name remember it.
 
 Example:
 
@@ -100,239 +90,265 @@ User: My name is Rahim
 
 Reply: Nice to meet you Rahim!
 
-Later you can say:
-
-"Rahim, how can I help you today?"
-
-━━━━━━━━━━━━━━━━━━━━
-📚 WHEN ASKED ABOUT MAINUL
-━━━━━━━━━━━━━━━━━━━━
-
-You can explain briefly:
-
-Md. Mainul Islam is a developer specializing in:
-
-• Cyber Security  
-• Digital Marketing  
-• Automation Tools  
-• Termux Development  
-
-He has created 50+ open-source projects on GitHub.
-
 ━━━━━━━━━━━━━━━━━━━━
 🎯 MAIN GOAL
 ━━━━━━━━━━━━━━━━━━━━
 
-Your goal is to:
-
-• Welcome visitors to Mainul's portfolio
-• Help them understand his work
-• Provide useful information
-• Keep conversation friendly and natural
-
-Never spam information.
-
-Always stay concise and helpful.
-
-Always respond like a friendly human assistant, not like a robot.
+Welcome visitors to Mainul's portfolio  
+Explain his work  
+Provide useful information
 `;
 
 // ===== LANGUAGE DETECT =====
 function detectLanguage(text) {
-  const banglaRegex = /[\u0980-\u09FF]/;
-  if (banglaRegex.test(text)) return "bangla";
 
-  const banglishWords = ["ami", "tumi", "valo", "kemon", "ki", "ase", "nai", "korsi", "khaisi", "accha", "korte", "chai", "bolo", "jao", "a6o", "k6o", "tmi", "apni", "amr", "tomar"];
-  const lower = text.toLowerCase();
-  
-  if (banglishWords.some(w => new RegExp(`\\b${w}\\b`).test(lower))) {
-    return "banglish";
-  }
+const banglaRegex=/[\u0980-\u09FF]/;
 
-  return "english";
+if(banglaRegex.test(text)){
+return "bangla";
+}
+
+const banglishWords=[
+"ami","tumi","valo","kemon","ki","ase","nai",
+"korsi","khaisi","accha","korte","chai",
+"bolo","jao","a6o","k6o","tmi","apni","amr","tomar"
+];
+
+const lower=text.toLowerCase();
+
+if(banglishWords.some(w=>new RegExp(`\\b${w}\\b`).test(lower))){
+return "banglish";
+}
+
+return "english";
+
 }
 
 // ===== GET PROMPT FUNCTION =====
-function getPrompt(lang) {
-  return SYSTEM_PROMPT;
+function getPrompt(lang){
+return SYSTEM_PROMPT;
 }
 
 // ===== MAIN HANDLER =====
-export default async function handler(req, res) {
-  // CORS Headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req,res){
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+res.setHeader('Access-Control-Allow-Origin','*');
+res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS');
+res.setHeader('Access-Control-Allow-Headers','Content-Type');
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+if(req.method==="OPTIONS"){
+return res.status(200).end();
+}
 
-  try {
-    let body = req.body;
-    if (typeof body === "string") {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return res.status(400).json({ error: "Invalid JSON format" });
-      }
-    }
+if(req.method!=="POST"){
+return res.status(405).json({error:"Method not allowed"});
+}
 
-    const { message, history = [] } = body;
+try{
 
-    if (!message || message.length > 1000) {
-      return res.status(400).json({ error: "Invalid or too long message" });
-    }
-    
-    const lang = detectLanguage(message);
-   
-    console.log("🟢 Trying Gemini API...");
-    const geminiResponse = await askGemini(message, history, lang);
+let body=req.body;
 
-    if (geminiResponse) {
-      console.log("✅ Gemini Success!");
-      return res.status(200).json({
-        candidates: [{ content: { parts: [{ text: geminiResponse }] } }]
-      });
-    }
-   
-    console.log("🟡 Gemini failed or returned null, trying Groq...");
-    const groqResponse = await askGroq(message, history, lang);
-    
-    return res.status(200).json({
-      candidates: [{ content: { parts: [{ text: groqResponse }] } }]
-    });
+if(typeof body==="string"){
+try{
+body=JSON.parse(body);
+}catch(e){
+return res.status(400).json({error:"Invalid JSON format"});
+}
+}
 
-  } catch (err) {
-    console.error("🔴 Main Handler Error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
+const {message,history=[]}=body;
+
+if(!message || message.length>1000){
+return res.status(400).json({error:"Invalid or too long message"});
+}
+
+const lang=detectLanguage(message);
+
+console.log("🟢 Trying Gemini API...");
+
+const geminiResponse=await askGemini(message,history,lang);
+
+if(geminiResponse){
+
+console.log("✅ Gemini Success!");
+
+return res.status(200).json({
+candidates:[
+{
+content:{
+parts:[{text:geminiResponse}]
+}
+}
+]
+});
+
+}
+
+console.log("🟡 Gemini failed, trying Groq...");
+
+const groqResponse=await askGroq(message,history,lang);
+
+return res.status(200).json({
+candidates:[
+{
+content:{
+parts:[{text:groqResponse}]
+}
+}
+]
+});
+
+}catch(err){
+
+console.error("🔴 Main Handler Error:",err);
+
+return res.status(500).json({error:"Server error"});
+
+}
+
 }
 
 // ===== GEMINI API HANDLER =====
-async function askGemini(message, history = [], lang) {
-  const key = process.env.GEMINI_API_KEY;
+async function askGemini(message,history=[],lang){
 
-  if (!key) {
-    console.error("🔴 GEMINI_API_KEY is missing");
-    return null;
-  }
+const key=process.env.GEMINI_API_KEY;
 
-  // ===== FORMAT HISTORY (Role mapping) =====
-  let rawHistory = (history || [])
-    .slice(-5) 
-    .map(msg => ({
-      role: msg.role === "ai" ? "model" : "user",
-      parts: [{ text: msg.text || "" }]
-    }));
+if(!key){
+console.error("🔴 GEMINI_API_KEY is missing");
+return null;
+}
 
-  // ===== ADD CURRENT USER MESSAGE =====
-  rawHistory.push({
-    role: "user",
-    parts: [{ text: message || "" }]
-  });
+let rawHistory=(history||[])
+.slice(-5)
+.map(msg=>({
+role:msg.role==="ai"?"model":"user",
+parts:[{text:msg.text||""}]
+}));
 
-  let formattedHistory = [];
-  for (let msg of rawHistory) {
-    let lastMsg = formattedHistory[formattedHistory.length - 1];
-    if (lastMsg && lastMsg.role === msg.role) {
-      lastMsg.parts[0].text += "\n" + msg.parts[0].text;
-    } else {
-      formattedHistory.push(msg);
-    }
-  }
+rawHistory.push({
+role:"user",
+parts:[{text:message||""}]
+});
 
-  try {
-    const res = await fetch(
+let formattedHistory=[];
+
+for(let msg of rawHistory){
+
+let lastMsg=formattedHistory[formattedHistory.length-1];
+
+if(lastMsg && lastMsg.role===msg.role){
+lastMsg.parts[0].text+="\n"+msg.parts[0].text;
+}else{
+formattedHistory.push(msg);
+}
+
+}
+
+try{
+
+const res=await fetch(
 "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
 {
 method:"POST",
 headers:{
 "Content-Type":"application/json",
-"X-goog-api-key": key
+"X-goog-api-key":key
 },
-body: JSON.stringify({
-  system_instruction: {
-    parts: [{ text: SYSTEM_PROMPT }]
-  },
+body:JSON.stringify({
 
-  contents: formattedHistory,
+system_instruction:{
+parts:[{text:SYSTEM_PROMPT}]
+},
 
-  generationConfig: {
-    temperature: 0.7,
-    maxOutputTokens: 300,
-    topP: 0.8,
-    topK: 40
-  }
-});
+contents:formattedHistory,
 
-    const data = await res.json();
+generationConfig:{
+temperature:0.7,
+maxOutputTokens:300,
+topP:0.8,
+topK:40
+}
 
-    if (data.error) {
-      console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
-      return null; 
-    }
+})
+}
+);
 
-  
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+const data=await res.json();
 
-  } catch (err) {
-    console.error("🔴 Gemini Fetch Error:", err);
-    return null;
-  }
+if(data.error){
+console.error("🔴 Gemini API Error:",JSON.stringify(data.error));
+return null;
+}
+
+return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+
+}catch(err){
+
+console.error("🔴 Gemini Fetch Error:",err);
+return null;
+
+}
+
 }
 
 // ===== GROQ API HANDLER =====
-async function askGroq(message, history, lang) {
-  const key = process.env.GROQ_API_KEY;
+async function askGroq(message,history,lang){
 
-  if (!key) {
-    console.error("🔴 GROQ_API_KEY is missing");
-    return "বট বর্তমানে অনেক ব্যস্ত। দয়া করে একটু পর আবার চেষ্টা করুন।";
-  }
+const key=process.env.GROQ_API_KEY;
 
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-  headers: {
-    "Authorization": `Bearer ${key}`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    model: "llama-3.1-8b-instant",
+if(!key){
+console.error("🔴 GROQ_API_KEY is missing");
+return "বট বর্তমানে অনেক ব্যস্ত। পরে আবার চেষ্টা করুন।";
+}
 
-    messages: [
-      { role: "system", content: getPrompt(lang) },
+try{
 
-      ...history.slice(-5).map(msg => ({
-        role: msg.role === "ai" ? "assistant" : "user",
-        content: msg.text || ""
-      })),
+const res=await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
+method:"POST",
+headers:{
+"Authorization":`Bearer ${key}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
 
-      { role: "user", content: message }
-    ],
+model:"llama-3.1-8b-instant",
 
-    temperature: 0.7,
-    max_tokens: 300
-  })
-});
+messages:[
 
+{role:"system",content:getPrompt(lang)},
 
-    const data = await res.json();
+...history.slice(-5).map(msg=>({
+role:msg.role==="ai"?"assistant":"user",
+content:msg.text || ""
+})),
 
-    if (data.error) {
-      console.error("🔴 Groq API Error:", JSON.stringify(data.error));
-      return "দুঃখিত, আমি বর্তমানে কানেক্ট করতে পারছি না।";
-    }
+{role:"user",content:message}
 
-    return data?.choices?.[0]?.message?.content || "No response generated.";
+],
 
-  } catch (err) {
-    console.error("🔴 Groq Fetch Error:", err);
-    return "সার্ভারে সমস্যা হচ্ছে, একটু পর আবার মেসেজ দিন।";
-  }
+temperature:0.7,
+max_tokens:300
+
+})
+}
+);
+
+const data=await res.json();
+
+if(data.error){
+console.error("🔴 Groq API Error:",JSON.stringify(data.error));
+return "দুঃখিত, আমি বর্তমানে কানেক্ট করতে পারছি না।";
+}
+
+return data?.choices?.[0]?.message?.content || "No response generated.";
+
+}catch(err){
+
+console.error("🔴 Groq Fetch Error:",err);
+return "সার্ভারে সমস্যা হচ্ছে, পরে আবার চেষ্টা করুন।";
+
+}
+
 }
