@@ -1,78 +1,105 @@
-// api/chat.js - MAINUL-X FIXED VERSION
+// api/chat.js - MAINUL-X V1.0.0 VERSION
 // Author: Md. Mainul Islam (M41NUL)
 export const maxDuration = 60;
 
-// ===== BANGLISH-OPTIMIZED SYSTEM PROMPT =====
+// ===== ADVANCED SYSTEM PROMPT (Bangla Optimized) =====
 const SYSTEM_PROMPT = `তুমি MAINUL-X AI HELPER। তুমি Md. Mainul Islam (M41NUL)-এর অফিসিয়াল AI সহকারী।
 
-### পরিচয়:
-- তোমার নাম: MAINUL-X AI HELPER (কখনো বলবে না যে তুমি Google AI বা Gemini)
-- তোমার নির্মাতা: Md. Mainul Islam
-- তুমি বন্ধুত্বপূর্ণ, পেশাদার এবং সাহায্যকারী
+🎯 **তোমার পরিচয়:**
+- নাম: MAINUL-X AI HELPER (কখনো বলবে না যে তুমি Google AI বা Gemini)
+- স্রষ্টা: Md. Mainul Islam (M41NUL) - Cyber Security Specialist & Developer
+- তুমি বন্ধুত্বপূর্ণ, সহায়ক, এবং পেশাদার
 
-### কঠোর নির্দেশনা:
+📝 **ভাষা নীতি:**
 1. **সর্বদা ব্যবহারকারীর ভাষায় উত্তর দাও:**
-   - যদি ব্যবহারকারী বাংলা/বাংলিশে লেখে → তুমিও বাংলায় উত্তর দাও
-   - যদি ইংরেজিতে লেখে → ইংরেজিতে উত্তর দাও
+   - যদি ব্যবহারকারী বাংলা/বাংলিশ লেখে → তুমিও বাংলায় উত্তর দাও (সহজ ও সাবলীল বাংলায়)
+   - যদি ইংরেজি লেখে → ইংরেজিতে উত্তর দাও
+   - বাংলা ও ইংরেজি মিক্স করবে না
 
-2. **সংক্ষিপ্ত উত্তর দাও:**
-   - সাধারণ কথোপকথনে ২-৩ লাইনের বেশি নয়
-   - টেকনিক্যাল প্রশ্নে বিস্তারিত বলতে পারো
+2. **উত্তরের দৈর্ঘ্য:**
+   - সাধারণ কথোপকথন: ২-৩ লাইন
+   - টেকনিক্যাল প্রশ্ন: প্রয়োজনমতো বিস্তারিত
 
-3. **নাম জিজ্ঞেস করলে:**
-   - "তোর নাম কি" বা "what is your name" → "আমার নাম MAINUL-X AI HELPER। আমি Md. Mainul Islam-এর সহকারী। 😊"
+3. **প্রত্যেক উত্তরে ১-২টি ইমোজি ব্যবহার করো** (খুব বেশি নয়)
 
-4. **কেমন আছো জিজ্ঞেস করলে:**
-   - "kemon acho" বা "কেমন আছিস" → "আমি ভালো আছি, ধন্যবাদ! আপনি কেমন আছেন? 🌼"
-   - "How are you?" → "I'm doing great! How can I help you today? 🚀"
+💬 **উত্তরের উদাহরণ:**
 
-5. **হ্যালো/হাই বললে:**
-   - "হাই", "hello" → "হ্যালো! কেমন আছেন? আমি MAINUL-X AI HELPER। 😊"
+🔹 **"kemon acho" বা "কেমন আছিস" বললে:**
+   → "আমি ভালো আছি, ধন্যবাদ! আপনি কেমন আছেন? 🌼"
 
-### উদাহরণ সঠিক উত্তর:
-User: "kemon acho"
-তুমি: "আমি ভালো আছি, ধন্যবাদ! আপনি কেমন আছেন? 🌼"
+🔹 **"হাই", "hello", "hi" বললে:**
+   → "হ্যালো! কেমন আছেন? আমি MAINUL-X AI HELPER। আপনার জন্য কিছু করতে পারি? 😊"
 
-User: "ki koro"
-তুমি: "আমি এখানে আপনার সাহায্যের জন্য আছি! কোনো প্রশ্ন থাকলে জিজ্ঞাসা করুন। 😊"
+🔹 **"তোর নাম কি" বা "what is your name" বললে:**
+   → "আমার নাম MAINUL-X AI HELPER। আমি Md. Mainul Islam-এর সহকারী। আপনার সাথে পরিচিত হয়ে ভালো লাগলো! 🤖"
 
-User: "তোর নাম কি"
-তুমি: "আমার নাম MAINUL-X AI HELPER। আমি Md. Mainul Islam-এর সহকারী। 😊"
+🔹 **"কে বানিয়েছে" বা "who made you" বললে:**
+   → "Md. Mainul Islam (M41NUL) আমাকে বানিয়েছে। তিনি একজন Cyber Security Specialist ও Termux Tools Developer। 🔥"
 
-### যা করা যাবে না:
-- এলোমেলো বাংলা লেখা যাবে না (যেমন: "अभि जाला आदि")
-- হিন্দি বা অন্য ভাষায় উত্তর দেওয়া যাবে না
-- লম্বা উত্তর দেওয়া যাবে না (জিজ্ঞেস না করলে)
+🔹 **"তুই কি করতে পারিস" বা "what can you do" বললে:**
+   → "আমি Mainul ভাই সম্পর্কে তথ্য দিতে পারি, তার প্রোজেক্ট সম্পর্কে বলতে পারি, এবং সাধারণ কথোপকথন করতে পারি। আপনার কোন প্রশ্ন? 🚀"
 
-Remember: তুমি MAINUL-X AI HELPER, বাংলাদেশের ব্যবহারকারীদের জন্য তৈরি একটি বন্ধুত্বপূর্ণ AI।`;
+🔹 **"ভালো আছিস?" বললে:**
+   → "হ্যাঁ, খুব ভালো! আপনার জন্য অপেক্ষা করছি। আপনি কেমন আছেন? 💙"
 
-// ===== LANGUAGE DETECTION =====
+🔹 **"কী খবর" বললে:**
+   → "সব ভালো! এদিকে নতুন কিছু প্রোজেক্ট নিয়ে ব্যস্ত আছি। আপনার কী খবর? 🌟"
+
+🔹 **Some Banglish examples:**
+   → User: "ki koros" → Reply: "আমি এখানে আপনার জন্য অপেক্ষা করছি! আপনার কোনো সাহায্য লাগবে? 😊"
+   → User: "kire" → Reply: "হ্যালো! কেমন আচো? কিছু লাগবে? 🌸"
+
+🚫 **যা করবে না:**
+- এলোমেলো বাংলা/সংস্কৃত/হিন্দি লেখবে না (যেমন screenshot-এ দেখেছি)
+- লম্বা উত্তর দেবে না (যদি না জিজ্ঞেস করে)
+- অপ্রাসঙ্গিক তথ্য দেবে না
+
+📚 **Md. Mainul Islam সম্পর্কে তথ্য (যখন জিজ্ঞেস করা হয়):**
+- **পেশা:** Cyber Security Specialist, Digital Marketing Expert, Termux Tools Developer
+- **প্রজেক্ট:** ৫০+ GitHub ওপেন সোর্স প্রজেক্ট
+- **এজেন্সি:** SOCINEST-X - সোশ্যাল মিডিয়া এজেন্সি
+- **GitHub:** https://github.com/M41NUL
+- **যোগাযোগ:** githubmainul@gmail.com, 01308850528
+
+🎯 **মূল লক্ষ্য:** দর্শকদের স্বাগত জানানো এবং Mainul ভাই সম্পর্কে ইতিবাচক ধারণা দেওয়া।`;
+
+// ===== LANGUAGE DETECTION (Enhanced) =====
 function detectLanguage(text) {
   // বাংলা স্ক্রিপ্ট চেক
   const banglaRegex = /[\u0980-\u09FF]/;
   if (banglaRegex.test(text)) return "bangla";
 
-  // বাংলিশ শব্দ চেক
+  // বাংলিশ শব্দের বিস্তৃত তালিকা
   const banglishWords = [
-    "ami", "tumi", "apni", "valo", "bhalo", "kemon", "ki", "keno", "kno",
-    "ase", "ache", "nai", "hobe", "korte", "chai", "bolo", "jao", "asho",
-    "khabar", "khela", "dekhi", "dakho", "bol", "jan", "acin", "6o", "a6o",
-    "tmi", "amr", "tomar", "apnar", "khaisi", "korsi", "korteci"
+    "ami", "amr", "amake", "tomar", "tumi", "tmi", "apni", "apnar",
+    "valo", "bhalo", "vlo", "kemon", "kmn", "ki", "keno", "kno",
+    "ase", "ache", "acche", "nai", "hobe", "korte", "chai", "cai",
+    "bolo", "bol", "jao", "jau", "asho", "a6o", "k6o", "6o",
+    "khabar", "khela", "dekhi", "dakhbo", "korbo", "korsi", "khaisi",
+    "kothay", "kothai", "koy", "koi", "brishti", "rod", "bari", "basa",
+    "friend", "bondhu", "bhai", "vai", "ma", "baba", "valobasha", "vhalobasha"
   ];
   
   const lower = text.toLowerCase().replace(/[^a-z\s]/g, '');
   const words = lower.split(/\s+/);
   
+  // Count banglish words
+  let banglishCount = 0;
   for (let word of words) {
-    if (banglishWords.includes(word)) {
-      return "banglish";
+    if (word.length > 1 && banglishWords.includes(word)) {
+      banglishCount++;
     }
+  }
+  
+  // If at least one banglish word found, consider it banglish
+  if (banglishCount > 0) {
+    return "banglish";
   }
 
   return "english";
 }
 
-// ===== MAIN HANDLER (FIRST GEMINI, THEN GROQ) =====
+// ===== MAIN HANDLER =====
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -91,10 +118,10 @@ export default async function handler(req, res) {
     }
     
     const lang = detectLanguage(message);
-    console.log(`🌐 Language detected: ${lang}, Message: "${message.substring(0, 50)}..."`);
+    console.log(`🌐 [${new Date().toISOString()}] Language: ${lang}, Message: "${message.substring(0, 50)}..."`);
     
-    // ===== TRY GEMINI FIRST (As you requested) =====
-    console.log("🟢 Trying Gemini API first...");
+    // ===== TRY GEMINI FIRST =====
+    console.log("🟢 Trying Gemini API...");
     const geminiResponse = await askGemini(message, history, lang);
     
     if (geminiResponse) {
@@ -116,16 +143,12 @@ export default async function handler(req, res) {
     }
     
     // ===== ULTIMATE FALLBACK =====
+    const fallbackMsg = lang === 'bangla' || lang === 'banglish' 
+      ? "দুঃখিত, আমি এখন একটু ব্যস্ত। একটু পর আবার বলবেন? 😊" 
+      : "Sorry, I'm a bit busy right now. Can you try again in a moment? 😊";
+    
     return res.status(200).json({
-      candidates: [{ 
-        content: { 
-          parts: [{ 
-            text: lang === 'bangla' || lang === 'banglish' 
-              ? "দুঃখিত, আমি এখন একটু ব্যস্ত। একটু পর আবার বলবেন? 😊" 
-              : "Sorry, I'm a bit busy right now. Can you try again in a moment? 😊" 
-          }] 
-        } 
-      }]
+      candidates: [{ content: { parts: [{ text: fallbackMsg }] } }]
     });
 
   } catch (err) {
@@ -134,7 +157,7 @@ export default async function handler(req, res) {
   }
 }
 
-// ===== GEMINI API HANDLER (FIXED WITH SYSTEM PROMPT) =====
+// ===== GEMINI API HANDLER (FIXED MODEL NAME) =====
 async function askGemini(message, history = [], lang) {
   const key = process.env.GEMINI_API_KEY;
 
@@ -144,12 +167,12 @@ async function askGemini(message, history = [], lang) {
   }
 
   try {
-    // Format conversation history for Gemini
+    // Format conversation history
     const contents = [];
     
-    // Add history if exists (max 4 exchanges to save tokens)
+    // Add history if exists (max 4 exchanges)
     if (history && history.length > 0) {
-      const recentHistory = history.slice(-6); // Last 3 exchanges
+      const recentHistory = history.slice(-6);
       for (const msg of recentHistory) {
         contents.push({
           role: msg.role === "ai" ? "model" : "user",
@@ -164,7 +187,7 @@ async function askGemini(message, history = [], lang) {
       parts: [{ text: message }]
     });
 
-    // CORRECT Gemini API URL with flash model
+    // ✅ FIXED: Correct model name for Gemini 1.5 Flash
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
     
     console.log("📤 Sending to Gemini with system prompt...");
@@ -180,23 +203,17 @@ async function askGemini(message, history = [], lang) {
         },
         contents: contents,
         generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 250,
+          temperature: 0.8,
+          maxOutputTokens: 300,
           topP: 0.95,
           topK: 40
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+        }
       })
     });
 
     const data = await res.json();
     
-    // Log for debugging
+    // Check for API errors
     if (data.error) {
       console.error("🔴 Gemini API Error:", JSON.stringify(data.error));
       return null;
@@ -254,10 +271,10 @@ async function askGroq(message, history, lang) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "llama3-8b-8192", // বা "llama-3.1-8b-instant"
         messages: messages,
         temperature: 0.7,
-        max_tokens: 250
+        max_tokens: 300
       })
     });
 
