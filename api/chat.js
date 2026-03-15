@@ -265,8 +265,8 @@ contents:formattedHistory,
 generationConfig:{
 temperature:0.7,
 maxOutputTokens:300,
-topP:0.8,
-topK:40
+topP:0.12,
+topK:80
 }
 
 })
